@@ -82,6 +82,16 @@ public class CaseFile {
         timeline.addEvent(event);
     }
 
+    public void addInterrogation(Interrogation interrogation) {
+        Interrogation nonNullInterrogation = Objects.requireNonNull(interrogation);
+        Suspect suspect = findSuspectById(nonNullInterrogation.getSuspectId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Unknown suspect for interrogation: " + nonNullInterrogation.getSuspectId()
+                ));
+        interrogations.add(nonNullInterrogation);
+        suspect.addInterrogation(nonNullInterrogation);
+    }
+
     public Optional<Suspect> findSuspectById(String suspectId) {
         return suspects.stream()
                 .filter(suspect -> suspect.getId().equals(suspectId))
@@ -166,7 +176,9 @@ public class CaseFile {
 
         public CaseFile build() {
             validateUniqueIds();
-            return new CaseFile(this);
+            CaseFile caseFile = new CaseFile(this);
+            caseFile.attachInterrogationsToSuspects();
+            return caseFile;
         }
 
         private void validateUniqueIds() {
@@ -183,6 +195,16 @@ public class CaseFile {
                     throw new IllegalArgumentException("Duplicate evidence id: " + evidence.getId());
                 }
             }
+        }
+    }
+
+    private void attachInterrogationsToSuspects() {
+        for (Interrogation interrogation : interrogations) {
+            Suspect suspect = findSuspectById(interrogation.getSuspectId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Unknown suspect for interrogation: " + interrogation.getSuspectId()
+                    ));
+            suspect.addInterrogation(interrogation);
         }
     }
 }

@@ -3,7 +3,12 @@ package it.university.caseforge.factory;
 import it.university.caseforge.model.CaseFile;
 import it.university.caseforge.model.CaseSolution;
 import it.university.caseforge.model.DigitalEvidence;
+import it.university.caseforge.model.Answer;
+import it.university.caseforge.model.Interrogation;
 import it.university.caseforge.model.PhysicalEvidence;
+import it.university.caseforge.model.Question;
+import it.university.caseforge.model.QuestionCategory;
+import it.university.caseforge.model.ReliabilityLevel;
 import it.university.caseforge.model.Suspect;
 import it.university.caseforge.model.TestimonyEvidence;
 import it.university.caseforge.model.TimelineEvent;
@@ -67,6 +72,47 @@ public class DemoCaseFactory implements CaseFactory {
                 "A woman with a gray coat left at 22:15."
         );
 
+        Interrogation martaInterrogation = new Interrogation(
+                "int-marta-001",
+                marta,
+                LocalDateTime.of(2026, 3, 5, 9, 30)
+        );
+        Question martaServerAccess = new Question(
+                "Did you access the accounting server after 22:00?",
+                QuestionCategory.ACCESS
+        );
+        martaServerAccess.answerWith(new Answer(
+                "No, I stayed away from company systems all evening.",
+                ReliabilityLevel.HIGH,
+                serverLog
+        ));
+        Question martaWeapon = new Question(
+                "Did you handle the letter opener in the victim's office?",
+                QuestionCategory.GENERAL
+        );
+        martaWeapon.answerWith(new Answer(
+                "No, I never touched it.",
+                ReliabilityLevel.MEDIUM,
+                fingerprint
+        ));
+        martaInterrogation.addQuestion(martaServerAccess);
+        martaInterrogation.addQuestion(martaWeapon);
+
+        Interrogation lucaInterrogation = new Interrogation(
+                "int-luca-001",
+                luca,
+                LocalDateTime.of(2026, 3, 5, 10, 15)
+        );
+        Question lucaLocation = new Question(
+                "Where were you during the final hour before the body was found?",
+                QuestionCategory.TIMELINE
+        );
+        lucaLocation.answerWith(new Answer(
+                "I was driving outside the city and had no access to the office.",
+                ReliabilityLevel.MEDIUM
+        ));
+        lucaInterrogation.addQuestion(lucaLocation);
+
         return CaseFile.builder("case-001", "The Locked Ledger")
                 .description("A company director is found dead after announcing an internal audit.")
                 .addSuspect(marta)
@@ -74,6 +120,8 @@ public class DemoCaseFactory implements CaseFactory {
                 .addEvidence(fingerprint)
                 .addEvidence(serverLog)
                 .addEvidence(guardStatement)
+                .addInterrogation(martaInterrogation)
+                .addInterrogation(lucaInterrogation)
                 .addTimelineEvent(new TimelineEvent(
                         "tl-audit",
                         LocalDateTime.of(2026, 3, 4, 18, 0),

@@ -5,17 +5,27 @@ import java.util.Objects;
 public class Question {
 
     private final String text;
+    private final QuestionCategory category;
     private Answer answer;
 
     public Question(String text) {
+        this(text, QuestionCategory.GENERAL);
+    }
+
+    public Question(String text, QuestionCategory category) {
         if (text == null || text.isBlank()) {
             throw new IllegalArgumentException("text cannot be blank.");
         }
         this.text = text;
+        this.category = Objects.requireNonNull(category);
     }
 
     public String getText() {
         return text;
+    }
+
+    public QuestionCategory getCategory() {
+        return category;
     }
 
     public Answer getAnswer() {

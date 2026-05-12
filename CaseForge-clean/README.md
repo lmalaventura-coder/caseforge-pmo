@@ -34,6 +34,9 @@ src/test/java/it/university/caseforge/model/
 - Accusa finale con valutazione tramite strategy.
 - Notifica eventi per prova scoperta, collegamento e chiusura caso.
 - Scheletri MVC per controller e view JavaFX.
+- Sistema di interrogatori con domande categorizzate, risposte affidabili e contraddizioni rilevate quando una prova scoperta smentisce una risposta.
+- Riduzione dell'affidabilita del sospetto quando emerge una contraddizione.
+- Pannello GUI dedicato alle domande e risposte del sospetto selezionato.
 
 ## Comandi Windows
 

@@ -4,6 +4,8 @@ import it.university.caseforge.controller.CaseController;
 import it.university.caseforge.model.CaseFile;
 import it.university.caseforge.model.EvaluationResult;
 import it.university.caseforge.model.Evidence;
+import it.university.caseforge.model.Interrogation;
+import it.university.caseforge.model.Question;
 import it.university.caseforge.model.Suspect;
 import it.university.caseforge.model.TimelineEvent;
 import it.university.caseforge.observer.InvestigationEvent;
@@ -37,6 +39,7 @@ public class JavaFxCaseView implements CaseView {
     private final ListView<SelectionItem> suspectList = new ListView<>();
     private final ListView<SelectionItem> evidenceList = new ListView<>();
     private final ListView<String> timelineList = new ListView<>();
+    private final ListView<String> interrogationList = new ListView<>();
     private final ComboBox<SelectionItem> accusedSuspectComboBox = new ComboBox<>();
     private final TextArea logArea = new TextArea();
 
@@ -45,6 +48,7 @@ public class JavaFxCaseView implements CaseView {
     private final Button formulateAccusationButton = new Button("Formula accusa");
 
     private CaseController controller;
+    private CaseFile currentCaseFile;
     private boolean caseLoaded;
 
     public JavaFxCaseView() {
@@ -63,6 +67,7 @@ public class JavaFxCaseView implements CaseView {
 
     @Override
     public void showCase(CaseFile caseFile) {
+        currentCaseFile = caseFile;
         String selectedSuspectId = selectedId(suspectList.getSelectionModel().getSelectedItem());
         String selectedEvidenceId = selectedId(evidenceList.getSelectionModel().getSelectedItem());
         String selectedAccusedSuspectId = selectedId(accusedSuspectComboBox.getValue());
@@ -91,14 +96,22 @@ public class JavaFxCaseView implements CaseView {
             appendLog("Caso demo caricato.");
             caseLoaded = true;
         }
+
+        updateInterrogationPanel(caseFile);
     }
 
     @Override
     public void showInvestigationEvent(InvestigationEvent event) {
-        String detail = event.getEvidence()
-                .map(evidence -> " " + evidence.getTitle())
-                .orElse("");
-        String message = event.getMessage() + detail;
+        String message = event.getContradiction()
+                .map(contradiction -> event.getMessage()
+                        + " " + contradiction.getEvidence().getTitle()
+                        + " contro la risposta: " + contradiction.getAnswer().getText())
+                .orElseGet(() -> {
+                    String detail = event.getEvidence()
+                            .map(evidence -> " " + evidence.getTitle())
+                            .orElse("");
+                    return event.getMessage() + detail;
+                });
         statusLabel.setText(message);
         appendLog(message);
     }
@@ -136,12 +149,14 @@ public class JavaFxCaseView implements CaseView {
         HBox columns = new HBox(14,
                 buildListPanel("Sospetti", suspectList),
                 buildListPanel("Prove", evidenceList),
-                buildListPanel("Timeline", timelineList)
+                buildListPanel("Timeline", timelineList),
+                buildListPanel("Interrogatorio", interrogationList)
         );
 
         HBox.setHgrow(columns.getChildren().get(0), Priority.ALWAYS);
         HBox.setHgrow(columns.getChildren().get(1), Priority.ALWAYS);
         HBox.setHgrow(columns.getChildren().get(2), Priority.ALWAYS);
+        HBox.setHgrow(columns.getChildren().get(3), Priority.ALWAYS);
 
         HBox actionBar = new HBox(12,
                 discoverEvidenceButton,
@@ -183,6 +198,16 @@ public class JavaFxCaseView implements CaseView {
     }
 
     private void configureActions() {
+        suspectList.getSelectionModel().selectedItemProperty().addListener((observable, previous, current) -> {
+            if (current == null) {
+                interrogationList.getItems().clear();
+                return;
+            }
+            if (currentCaseFile != null) {
+                updateInterrogationPanel(currentCaseFile);
+            }
+        });
+
         discoverEvidenceButton.setOnAction(event -> withController(() -> {
             SelectionItem evidence = evidenceList.getSelectionModel().getSelectedItem();
             if (evidence == null) {
@@ -216,7 +241,9 @@ public class JavaFxCaseView implements CaseView {
     }
 
     private SelectionItem toSuspectItem(Suspect suspect) {
-        String label = suspect.getName() + " | movente: " + suspect.getMotive();
+        String label = suspect.getName()
+                + " | affidabilita: " + suspect.getReliabilityScore()
+                + " | movente: " + suspect.getMotive();
         return new SelectionItem(suspect.getId(), label);
     }
 
@@ -240,6 +267,40 @@ public class JavaFxCaseView implements CaseView {
 
     private void appendLog(String message) {
         logArea.appendText(message + System.lineSeparator());
+    }
+
+    private void updateInterrogationPanel(CaseFile caseFile) {
+        SelectionItem selectedSuspect = suspectList.getSelectionModel().getSelectedItem();
+        if (selectedSuspect == null && !suspectList.getItems().isEmpty()) {
+            suspectList.getSelectionModel().selectFirst();
+            selectedSuspect = suspectList.getSelectionModel().getSelectedItem();
+        }
+
+        if (selectedSuspect == null) {
+            interrogationList.getItems().clear();
+            return;
+        }
+
+        Suspect suspect = caseFile.findSuspectById(selectedSuspect.id()).orElseThrow();
+        interrogationList.getItems().setAll(suspect.getInterrogations().stream()
+                .flatMap(interrogation -> interrogationLines(interrogation).stream())
+                .toList());
+    }
+
+    private java.util.List<String> interrogationLines(Interrogation interrogation) {
+        java.util.List<String> lines = new java.util.ArrayList<>();
+        lines.add("Interrogatorio " + interrogation.getId());
+        for (Question question : interrogation.getQuestions()) {
+            lines.add("Q [" + question.getCategory() + "]: " + question.getText());
+            if (question.getAnswer() != null) {
+                lines.add("A [" + question.getAnswer().getReliabilityLevel() + "]: "
+                        + question.getAnswer().getText());
+            }
+        }
+        if (!interrogation.getContradictions().isEmpty()) {
+            lines.add("Contraddizioni rilevate: " + interrogation.getContradictions().size());
+        }
+        return lines;
     }
 
     private String selectedId(SelectionItem item) {

@@ -1,6 +1,7 @@
 package it.university.caseforge.observer;
 
 import it.university.caseforge.model.Accusation;
+import it.university.caseforge.model.Contradiction;
 import it.university.caseforge.model.EvaluationResult;
 import it.university.caseforge.model.Evidence;
 
@@ -16,6 +17,7 @@ public class InvestigationEvent {
     private final Evidence evidence;
     private final Accusation accusation;
     private final EvaluationResult evaluationResult;
+    private final Contradiction contradiction;
 
     public InvestigationEvent(
             InvestigationEventType type,
@@ -23,7 +25,8 @@ public class InvestigationEvent {
             LocalDateTime occurredAt,
             Evidence evidence,
             Accusation accusation,
-            EvaluationResult evaluationResult
+            EvaluationResult evaluationResult,
+            Contradiction contradiction
     ) {
         this.type = Objects.requireNonNull(type);
         this.message = message == null ? "" : message;
@@ -31,6 +34,7 @@ public class InvestigationEvent {
         this.evidence = evidence;
         this.accusation = accusation;
         this.evaluationResult = evaluationResult;
+        this.contradiction = contradiction;
     }
 
     public static InvestigationEvent evidenceDiscovered(Evidence evidence, LocalDateTime occurredAt) {
@@ -40,7 +44,23 @@ public class InvestigationEvent {
                 occurredAt,
                 Objects.requireNonNull(evidence),
                 null,
+                null,
                 null
+        );
+    }
+
+    public static InvestigationEvent contradictionDetected(
+            Contradiction contradiction,
+            LocalDateTime occurredAt
+    ) {
+        return new InvestigationEvent(
+                InvestigationEventType.CONTRADICTION_DETECTED,
+                "Contradiction detected.",
+                occurredAt,
+                contradiction.getEvidence(),
+                null,
+                null,
+                Objects.requireNonNull(contradiction)
         );
     }
 
@@ -55,7 +75,8 @@ public class InvestigationEvent {
                 occurredAt,
                 null,
                 Objects.requireNonNull(accusation),
-                Objects.requireNonNull(evaluationResult)
+                Objects.requireNonNull(evaluationResult),
+                null
         );
     }
 
@@ -81,5 +102,9 @@ public class InvestigationEvent {
 
     public Optional<EvaluationResult> getEvaluationResult() {
         return Optional.ofNullable(evaluationResult);
+    }
+
+    public Optional<Contradiction> getContradiction() {
+        return Optional.ofNullable(contradiction);
     }
 }
