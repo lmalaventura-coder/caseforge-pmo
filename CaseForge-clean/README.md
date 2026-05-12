@@ -28,6 +28,7 @@ src/test/java/it/university/caseforge/model/
 ## Funzionalita attuali
 
 - Creazione caso demo.
+- Caso demo narrativo ambientato nella startup tecnologica HelixNova, con piu sospetti, prove incrociate e timeline investigativa estesa.
 - Aggiunta sospetti, prove e timeline.
 - Scoperta di una prova.
 - Collegamento prova-sospetto.

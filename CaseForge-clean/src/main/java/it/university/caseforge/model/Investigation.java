@@ -74,7 +74,7 @@ public class Investigation {
         if (!evidence.isLinkedTo(suspectId)) {
             evidence.linkToSuspect(suspect);
             notifyObservers(new InvestigationEvent(
-                    InvestigationEventType.EVIDENCE_LINKED,
+                    InvestigationEventType.EVIDENCE_LINKED_TO_SUSPECT,
                     "Evidence linked to suspect.",
                     LocalDateTime.now(),
                     evidence,

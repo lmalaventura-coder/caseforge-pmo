@@ -17,10 +17,10 @@ class EvidenceLinkingTest {
     void evidenceCanBeLinkedToASuspect() {
         Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
 
-        investigation.linkEvidenceToSuspect("ev-fingerprint", "sus-marta-greco");
+        investigation.linkEvidenceToSuspect("ev-call-record", "sus-luca-conti");
 
-        Evidence evidence = investigation.getCaseFile().findEvidenceById("ev-fingerprint").orElseThrow();
-        assertTrue(evidence.isLinkedTo("sus-marta-greco"));
+        Evidence evidence = investigation.getCaseFile().findEvidenceById("ev-call-record").orElseThrow();
+        assertTrue(evidence.isLinkedTo("sus-luca-conti"));
     }
 
     @Test
@@ -29,10 +29,10 @@ class EvidenceLinkingTest {
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
 
-        investigation.linkEvidenceToSuspect("ev-fingerprint", "sus-marta-greco");
-        investigation.linkEvidenceToSuspect("ev-fingerprint", "sus-marta-greco");
+        investigation.linkEvidenceToSuspect("ev-call-record", "sus-luca-conti");
+        investigation.linkEvidenceToSuspect("ev-call-record", "sus-luca-conti");
 
         assertEquals(1, events.size());
-        assertEquals(InvestigationEventType.EVIDENCE_LINKED, events.get(0).getType());
+        assertEquals(InvestigationEventType.EVIDENCE_LINKED_TO_SUSPECT, events.get(0).getType());
     }
 }

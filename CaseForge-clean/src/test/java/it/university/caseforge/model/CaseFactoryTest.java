@@ -4,6 +4,7 @@ import it.university.caseforge.factory.DemoCaseFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CaseFactoryTest {
@@ -13,9 +14,37 @@ class CaseFactoryTest {
         CaseFile caseFile = new DemoCaseFactory().createDemoCase();
 
         assertEquals("case-001", caseFile.getId());
-        assertEquals(2, caseFile.getSuspects().size());
-        assertEquals(3, caseFile.getEvidences().size());
-        assertEquals(3, caseFile.getTimeline().getEvents().size());
+        assertEquals(4, caseFile.getSuspects().size());
+        assertEquals(8, caseFile.getEvidences().size());
+        assertEquals(8, caseFile.getTimeline().getEvents().size());
         assertTrue(caseFile.getSolution().isPresent());
+    }
+
+    @Test
+    void demoCasePresentsACoherentStartupInvestigation() {
+        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+
+        assertEquals("Startup Midnight Breach", caseFile.getTitle());
+        assertTrue(caseFile.getDescription().contains("HelixNova"));
+        assertTrue(caseFile.findEvidenceById("ev-email-warning").isPresent());
+        assertTrue(caseFile.findEvidenceById("ev-badge-log").isPresent());
+        assertTrue(caseFile.findEvidenceById("ev-chat-message").isPresent());
+    }
+
+    @Test
+    void demoCaseIncludesACredibleInnocentSuspectWithLinkedEvidence() {
+        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+        Suspect davide = caseFile.findSuspectById("sus-davide-serra").orElseThrow();
+        Evidence parkingTicket = caseFile.findEvidenceById("ev-parking-ticket").orElseThrow();
+        TimelineEvent parkingExit = caseFile.getTimeline().getEvents().stream()
+                .filter(event -> event.getId().equals("tl-parking-exit"))
+                .findFirst()
+                .orElseThrow();
+
+        assertFalse(davide.getMotive().isBlank());
+        assertTrue(parkingTicket.isLinkedTo(davide.getId()));
+        assertEquals("sus-marta-greco", caseFile.getSolution().orElseThrow().getCulpritSuspectId());
+        assertFalse(caseFile.getSolution().orElseThrow().getCulpritSuspectId().equals(davide.getId()));
+        assertEquals(davide.getId(), parkingExit.getRelatedSuspectId().orElseThrow());
     }
 }
