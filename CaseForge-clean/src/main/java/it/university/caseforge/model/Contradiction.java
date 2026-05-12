@@ -4,6 +4,7 @@ import java.util.Objects;
 
 public class Contradiction {
 
+    private final String id;
     private final String suspectId;
     private final Question question;
     private final Answer answer;
@@ -20,11 +21,16 @@ public class Contradiction {
         if (suspectId == null || suspectId.isBlank()) {
             throw new IllegalArgumentException("suspectId cannot be blank.");
         }
+        this.id = idFor(suspectId, Objects.requireNonNull(question).getId(), Objects.requireNonNull(evidence).getId());
         this.suspectId = suspectId;
-        this.question = Objects.requireNonNull(question);
+        this.question = question;
         this.answer = Objects.requireNonNull(answer);
-        this.evidence = Objects.requireNonNull(evidence);
+        this.evidence = evidence;
         this.explanation = explanation == null ? "" : explanation;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getSuspectId() {
@@ -45,5 +51,20 @@ public class Contradiction {
 
     public String getExplanation() {
         return explanation;
+    }
+
+    public static String idFor(String suspectId, String questionId, String evidenceId) {
+        return requireText(suspectId, "suspectId")
+                + "::"
+                + requireText(questionId, "questionId")
+                + "::"
+                + requireText(evidenceId, "evidenceId");
+    }
+
+    private static String requireText(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " cannot be blank.");
+        }
+        return value;
     }
 }

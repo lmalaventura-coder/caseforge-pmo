@@ -3,8 +3,8 @@ package it.university.caseforge.factory;
 import it.university.caseforge.model.Answer;
 import it.university.caseforge.model.CaseFile;
 import it.university.caseforge.model.CaseSolution;
+import it.university.caseforge.model.Contradiction;
 import it.university.caseforge.model.DigitalEvidence;
-import it.university.caseforge.model.Evidence;
 import it.university.caseforge.model.Interrogation;
 import it.university.caseforge.model.PhysicalEvidence;
 import it.university.caseforge.model.Question;
@@ -15,8 +15,6 @@ import it.university.caseforge.model.TestimonyEvidence;
 import it.university.caseforge.model.TimelineEvent;
 
 import java.time.LocalDateTime;
-import java.util.Set;
-
 public class DemoCaseFactory implements CaseFactory {
 
     private final EvidenceFactory evidenceFactory;
@@ -129,20 +127,6 @@ public class DemoCaseFactory implements CaseFactory {
                 "SHA-256:chat-release-bridge"
         );
 
-        linkEvidenceToSuspects(
-                emailWarning,
-                marta,
-                luca,
-                davide
-        );
-        linkEvidenceToSuspects(badgeAccessLog, marta);
-        linkEvidenceToSuspects(witnessStatement, marta);
-        linkEvidenceToSuspects(fingerprint, marta);
-        linkEvidenceToSuspects(phoneCall, davide);
-        linkEvidenceToSuspects(serverLog, marta);
-        linkEvidenceToSuspects(parkingTicket, davide);
-        linkEvidenceToSuspects(chatMessage, sofia);
-
         Interrogation martaInterrogation = createMartaInterrogation(marta, serverLog, fingerprint);
         Interrogation lucaInterrogation = createLucaInterrogation(luca);
         Interrogation sofiaInterrogation = createSofiaInterrogation(sofia);
@@ -227,7 +211,13 @@ public class DemoCaseFactory implements CaseFactory {
                 ))
                 .solution(new CaseSolution(
                         "sus-marta-greco",
-                        Set.of("ev-fingerprint", "ev-server-log"),
+                        "ev-server-log",
+                        Contradiction.idFor(
+                                "sus-marta-greco",
+                                "q-marta-server-access",
+                                "ev-server-log"
+                        ),
+                        "tl-server-export",
                         "Marta Greco staged a late remote-work alibi while retrieving sensitive files and "
                                 + "confronting the founder over the audit."
                 ))
@@ -246,30 +236,36 @@ public class DemoCaseFactory implements CaseFactory {
         );
 
         Question serverAccess = new Question(
+                "q-marta-server-access",
                 "Did you access company finance systems after 22:00?",
                 QuestionCategory.ACCESS
         );
         serverAccess.answerWith(new Answer(
+                "ans-marta-server-access",
                 "No. I stayed on the board call and never opened finance tools.",
                 ReliabilityLevel.HIGH,
                 serverLog
         ));
 
         Question meetingRoom = new Question(
+                "q-marta-meeting-room",
                 "Did you enter the executive meeting room after office hours?",
                 QuestionCategory.TIMELINE
         );
         meetingRoom.answerWith(new Answer(
+                "ans-marta-meeting-room",
                 "No. I had no reason to go back to headquarters.",
                 ReliabilityLevel.MEDIUM,
                 fingerprint
         ));
 
         Question motive = new Question(
+                "q-marta-audit-worry",
                 "Were you worried about the audit announced that evening?",
                 QuestionCategory.MOTIVE
         );
         motive.answerWith(new Answer(
+                "ans-marta-audit-worry",
                 "It was routine. I was not personally concerned.",
                 ReliabilityLevel.MEDIUM
         ));
@@ -288,19 +284,23 @@ public class DemoCaseFactory implements CaseFactory {
         );
 
         Question emailReaction = new Question(
+                "q-luca-audit-email",
                 "Did the audit email change your plans that evening?",
                 QuestionCategory.MOTIVE
         );
         emailReaction.answerWith(new Answer(
+                "ans-luca-audit-email",
                 "I read it, but it did not involve my current role.",
                 ReliabilityLevel.MEDIUM
         ));
 
         Question access = new Question(
+                "q-luca-access-floor",
                 "Did you access the executive floor after 22:00?",
                 QuestionCategory.ACCESS
         );
         access.answerWith(new Answer(
+                "ans-luca-access-floor",
                 "No. My visit ended before the building entered night mode.",
                 ReliabilityLevel.MEDIUM
         ));
@@ -318,19 +318,23 @@ public class DemoCaseFactory implements CaseFactory {
         );
 
         Question releaseBridge = new Question(
+                "q-sofia-release-bridge",
                 "Were you continuously present on the release bridge during the incident window?",
                 QuestionCategory.TIMELINE
         );
         releaseBridge.answerWith(new Answer(
+                "ans-sofia-release-bridge",
                 "Yes. I was coordinating rollback steps in chat and on the incident call.",
                 ReliabilityLevel.HIGH
         ));
 
         Question motive = new Question(
+                "q-sofia-promotion",
                 "Did you resent leadership after the promotion delay?",
                 QuestionCategory.MOTIVE
         );
         motive.answerWith(new Answer(
+                "ans-sofia-promotion",
                 "I was angry, but I wanted the platform stable, not revenge.",
                 ReliabilityLevel.MEDIUM
         ));
@@ -340,9 +344,4 @@ public class DemoCaseFactory implements CaseFactory {
         return interrogation;
     }
 
-    private void linkEvidenceToSuspects(Evidence evidence, Suspect... suspects) {
-        for (Suspect suspect : suspects) {
-            evidence.linkToSuspect(suspect);
-        }
-    }
 }

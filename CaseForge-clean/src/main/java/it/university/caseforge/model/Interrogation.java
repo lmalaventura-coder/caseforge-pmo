@@ -43,6 +43,12 @@ public class Interrogation {
         questions.add(Objects.requireNonNull(question));
     }
 
+    public java.util.Optional<Question> findQuestionById(String questionId) {
+        return questions.stream()
+                .filter(question -> question.getId().equals(questionId))
+                .findFirst();
+    }
+
     public List<Contradiction> getContradictions() {
         return Collections.unmodifiableList(contradictions);
     }

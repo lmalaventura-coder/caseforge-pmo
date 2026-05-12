@@ -1,22 +1,24 @@
 package it.university.caseforge.model;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
-
 public class Accusation {
 
     private final String suspectId;
-    private final Set<String> evidenceIds;
+    private final String primaryEvidenceId;
+    private final String primaryContradictionId;
+    private final String relevantTimelineEventId;
     private final String reasoning;
 
-    public Accusation(String suspectId, Set<String> evidenceIds, String reasoning) {
-        if (suspectId == null || suspectId.isBlank()) {
-            throw new IllegalArgumentException("suspectId cannot be blank.");
-        }
-        this.suspectId = suspectId;
-        this.evidenceIds = Collections.unmodifiableSet(new LinkedHashSet<>(Objects.requireNonNull(evidenceIds)));
+    public Accusation(
+            String suspectId,
+            String primaryEvidenceId,
+            String primaryContradictionId,
+            String relevantTimelineEventId,
+            String reasoning
+    ) {
+        this.suspectId = requireText(suspectId, "suspectId");
+        this.primaryEvidenceId = requireText(primaryEvidenceId, "primaryEvidenceId");
+        this.primaryContradictionId = requireText(primaryContradictionId, "primaryContradictionId");
+        this.relevantTimelineEventId = requireText(relevantTimelineEventId, "relevantTimelineEventId");
         this.reasoning = reasoning == null ? "" : reasoning;
     }
 
@@ -24,11 +26,26 @@ public class Accusation {
         return suspectId;
     }
 
-    public Set<String> getEvidenceIds() {
-        return evidenceIds;
+    public String getPrimaryEvidenceId() {
+        return primaryEvidenceId;
+    }
+
+    public String getPrimaryContradictionId() {
+        return primaryContradictionId;
+    }
+
+    public String getRelevantTimelineEventId() {
+        return relevantTimelineEventId;
     }
 
     public String getReasoning() {
         return reasoning;
+    }
+
+    private static String requireText(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " cannot be blank.");
+        }
+        return value;
     }
 }

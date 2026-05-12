@@ -60,7 +60,6 @@ public class Investigation {
         if (!evidence.isDiscovered()) {
             evidence.markDiscovered();
             notifyObservers(InvestigationEvent.evidenceDiscovered(evidence, LocalDateTime.now()));
-            detectContradictions(evidence);
         }
     }
 
@@ -94,29 +93,56 @@ public class Investigation {
         return lastEvaluationResult;
     }
 
+    public void linkEvidenceToAnswer(
+            String evidenceId,
+            String suspectId,
+            String interrogationId,
+            String questionId
+    ) {
+        requireOpen();
+        Evidence evidence = caseFile.findEvidenceById(evidenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown evidence: " + evidenceId));
+        if (!evidence.isDiscovered()) {
+            throw new IllegalStateException("Evidence must be discovered before linking it to an answer.");
+        }
+
+        Suspect suspect = caseFile.findSuspectById(suspectId)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown suspect: " + suspectId));
+        Interrogation interrogation = suspect.getInterrogations().stream()
+                .filter(candidate -> candidate.getId().equals(interrogationId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown interrogation: " + interrogationId));
+        Question question = interrogation.findQuestionById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown question: " + questionId));
+        Answer answer = Objects.requireNonNull(question.getAnswer(), "Question has no answer.");
+
+        if (!answer.linkEvidence(evidence)) {
+            return;
+        }
+
+        notifyObservers(InvestigationEvent.evidenceLinkedToAnswer(evidence, LocalDateTime.now()));
+        contradictionStrategy.evaluate(suspect, question, evidence)
+                .filter(interrogation::addContradiction)
+                .ifPresentOrElse(
+                        contradiction -> {
+                            suspect.decreaseReliability(
+                                    contradiction.getAnswer().getReliabilityLevel().getWeight() * 10
+                            );
+                            notifyObservers(InvestigationEvent.contradictionDetected(
+                                    contradiction,
+                                    LocalDateTime.now()
+                            ));
+                        },
+                        () -> notifyObservers(InvestigationEvent.noContradictionDetected(
+                                evidence,
+                                LocalDateTime.now()
+                        ))
+                );
+    }
+
     private void closeCase() {
         status = InvestigationStatus.CLOSED;
         notifyObservers(InvestigationEvent.caseClosed(lastAccusation, lastEvaluationResult, LocalDateTime.now()));
-    }
-
-    private void detectContradictions(Evidence evidence) {
-        for (Suspect suspect : caseFile.getSuspects()) {
-            for (Interrogation interrogation : suspect.getInterrogations()) {
-                for (Question question : interrogation.getQuestions()) {
-                    contradictionStrategy.evaluate(suspect, question, evidence)
-                            .filter(interrogation::addContradiction)
-                            .ifPresent(contradiction -> {
-                                suspect.decreaseReliability(
-                                        contradiction.getAnswer().getReliabilityLevel().getWeight() * 10
-                                );
-                                notifyObservers(InvestigationEvent.contradictionDetected(
-                                        contradiction,
-                                        LocalDateTime.now()
-                                ));
-                            });
-                }
-            }
-        }
     }
 
     private void notifyObservers(InvestigationEvent event) {

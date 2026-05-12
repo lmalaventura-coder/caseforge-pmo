@@ -4,20 +4,33 @@ import java.util.Objects;
 
 public class Question {
 
+    private final String id;
     private final String text;
     private final QuestionCategory category;
     private Answer answer;
 
     public Question(String text) {
-        this(text, QuestionCategory.GENERAL);
+        this(defaultId(text), text, QuestionCategory.GENERAL);
     }
 
     public Question(String text, QuestionCategory category) {
+        this(defaultId(text), text, category);
+    }
+
+    public Question(String id, String text, QuestionCategory category) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("id cannot be blank.");
+        }
         if (text == null || text.isBlank()) {
             throw new IllegalArgumentException("text cannot be blank.");
         }
+        this.id = id;
         this.text = text;
         this.category = Objects.requireNonNull(category);
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getText() {
@@ -34,5 +47,9 @@ public class Question {
 
     public void answerWith(Answer answer) {
         this.answer = Objects.requireNonNull(answer);
+    }
+
+    private static String defaultId(String text) {
+        return "question-" + Math.abs(Objects.requireNonNull(text).hashCode());
     }
 }

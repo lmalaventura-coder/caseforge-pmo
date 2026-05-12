@@ -2,8 +2,6 @@ package it.university.caseforge.controller;
 
 import it.university.caseforge.model.EvaluationResult;
 
-import java.util.Set;
-
 public interface CaseController {
 
     void loadDemoCase();
@@ -12,7 +10,18 @@ public interface CaseController {
 
     void linkEvidenceToSuspect(String evidenceId, String suspectId);
 
-    EvaluationResult submitAccusation(String suspectId, Set<String> evidenceIds, String reasoning);
+    void linkEvidenceToAnswer(
+            String evidenceId,
+            String suspectId,
+            String interrogationId,
+            String questionId
+    );
 
-    EvaluationResult submitAccusationWithDiscoveredEvidence(String suspectId, String reasoning);
+    EvaluationResult submitAccusation(
+            String suspectId,
+            String primaryEvidenceId,
+            String primaryContradictionId,
+            String relevantTimelineEventId,
+            String reasoning
+    );
 }

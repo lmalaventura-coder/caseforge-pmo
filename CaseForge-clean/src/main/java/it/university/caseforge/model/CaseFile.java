@@ -104,6 +104,17 @@ public class CaseFile {
                 .findFirst();
     }
 
+    public Optional<TimelineEvent> findTimelineEventById(String timelineEventId) {
+        return timeline.findEventById(timelineEventId);
+    }
+
+    public Optional<Contradiction> findContradictionById(String contradictionId) {
+        return interrogations.stream()
+                .flatMap(interrogation -> interrogation.getContradictions().stream())
+                .filter(contradiction -> contradiction.getId().equals(contradictionId))
+                .findFirst();
+    }
+
     private void ensureUniqueSuspect(String suspectId) {
         if (findSuspectById(suspectId).isPresent()) {
             throw new IllegalArgumentException("Duplicate suspect id: " + suspectId);

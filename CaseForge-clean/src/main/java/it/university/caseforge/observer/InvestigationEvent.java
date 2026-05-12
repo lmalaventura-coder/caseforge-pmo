@@ -64,6 +64,30 @@ public class InvestigationEvent {
         );
     }
 
+    public static InvestigationEvent evidenceLinkedToAnswer(Evidence evidence, LocalDateTime occurredAt) {
+        return new InvestigationEvent(
+                InvestigationEventType.EVIDENCE_LINKED_TO_ANSWER,
+                "Evidence linked to answer.",
+                occurredAt,
+                Objects.requireNonNull(evidence),
+                null,
+                null,
+                null
+        );
+    }
+
+    public static InvestigationEvent noContradictionDetected(Evidence evidence, LocalDateTime occurredAt) {
+        return new InvestigationEvent(
+                InvestigationEventType.NO_CONTRADICTION_DETECTED,
+                "No contradiction detected.",
+                occurredAt,
+                Objects.requireNonNull(evidence),
+                null,
+                null,
+                null
+        );
+    }
+
     public static InvestigationEvent caseClosed(
             Accusation accusation,
             EvaluationResult evaluationResult,

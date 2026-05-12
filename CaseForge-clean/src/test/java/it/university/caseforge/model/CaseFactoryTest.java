@@ -32,17 +32,16 @@ class CaseFactoryTest {
     }
 
     @Test
-    void demoCaseIncludesACredibleInnocentSuspectWithLinkedEvidence() {
+    void demoCaseIncludesACredibleInnocentSuspectWithTimelineSupport() {
         CaseFile caseFile = new DemoCaseFactory().createDemoCase();
         Suspect davide = caseFile.findSuspectById("sus-davide-serra").orElseThrow();
-        Evidence parkingTicket = caseFile.findEvidenceById("ev-parking-ticket").orElseThrow();
         TimelineEvent parkingExit = caseFile.getTimeline().getEvents().stream()
                 .filter(event -> event.getId().equals("tl-parking-exit"))
                 .findFirst()
                 .orElseThrow();
 
         assertFalse(davide.getMotive().isBlank());
-        assertTrue(parkingTicket.isLinkedTo(davide.getId()));
+        assertTrue(caseFile.findEvidenceById("ev-parking-ticket").isPresent());
         assertEquals("sus-marta-greco", caseFile.getSolution().orElseThrow().getCulpritSuspectId());
         assertFalse(caseFile.getSolution().orElseThrow().getCulpritSuspectId().equals(davide.getId()));
         assertEquals(davide.getId(), parkingExit.getRelatedSuspectId().orElseThrow());

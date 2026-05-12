@@ -59,6 +59,12 @@ class InterrogationSystemTest {
         Suspect marta = investigation.getCaseFile().findSuspectById("sus-marta-greco").orElseThrow();
 
         investigation.discoverEvidence("ev-server-log");
+        investigation.linkEvidenceToAnswer(
+                "ev-server-log",
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
 
         assertEquals(70, marta.getReliabilityScore());
         assertEquals(1, marta.getInterrogations().get(0).getContradictions().size());
@@ -70,7 +76,18 @@ class InterrogationSystemTest {
         Suspect marta = investigation.getCaseFile().findSuspectById("sus-marta-greco").orElseThrow();
 
         investigation.discoverEvidence("ev-server-log");
-        investigation.discoverEvidence("ev-server-log");
+        investigation.linkEvidenceToAnswer(
+                "ev-server-log",
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
+        investigation.linkEvidenceToAnswer(
+                "ev-server-log",
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
 
         assertEquals(70, marta.getReliabilityScore());
         assertEquals(1, marta.getInterrogations().get(0).getContradictions().size());
@@ -83,8 +100,73 @@ class InterrogationSystemTest {
         investigation.addObserver(events::add);
 
         investigation.discoverEvidence("ev-server-log");
+        investigation.linkEvidenceToAnswer(
+                "ev-server-log",
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
 
         assertTrue(events.stream()
                 .anyMatch(event -> event.getType() == InvestigationEventType.CONTRADICTION_DETECTED));
+    }
+
+    @Test
+    void discoveringEvidenceDoesNotChangeReliability() {
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Suspect marta = investigation.getCaseFile().findSuspectById("sus-marta-greco").orElseThrow();
+
+        investigation.discoverEvidence("ev-server-log");
+
+        assertEquals(100, marta.getReliabilityScore());
+        assertEquals(0, marta.getInterrogations().get(0).getContradictions().size());
+    }
+
+    @Test
+    void linkingCompatibleEvidenceDoesNotChangeReliability() {
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Suspect sofia = investigation.getCaseFile().findSuspectById("sus-sofia-rinaldi").orElseThrow();
+
+        investigation.discoverEvidence("ev-chat-message");
+        investigation.linkEvidenceToAnswer(
+                "ev-chat-message",
+                "sus-sofia-rinaldi",
+                "int-sofia-001",
+                "q-sofia-release-bridge"
+        );
+
+        assertEquals(100, sofia.getReliabilityScore());
+        assertEquals(0, sofia.getInterrogations().get(0).getContradictions().size());
+    }
+
+    @Test
+    void linkingSameEvidenceToSameAnswerDoesNotDuplicateEvents() {
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        List<InvestigationEvent> events = new ArrayList<>();
+        investigation.addObserver(events::add);
+        investigation.discoverEvidence("ev-chat-message");
+
+        investigation.linkEvidenceToAnswer(
+                "ev-chat-message",
+                "sus-sofia-rinaldi",
+                "int-sofia-001",
+                "q-sofia-release-bridge"
+        );
+        investigation.linkEvidenceToAnswer(
+                "ev-chat-message",
+                "sus-sofia-rinaldi",
+                "int-sofia-001",
+                "q-sofia-release-bridge"
+        );
+
+        long linkedEvents = events.stream()
+                .filter(event -> event.getType() == InvestigationEventType.EVIDENCE_LINKED_TO_ANSWER)
+                .count();
+        long noContradictionEvents = events.stream()
+                .filter(event -> event.getType() == InvestigationEventType.NO_CONTRADICTION_DETECTED)
+                .count();
+
+        assertEquals(1, linkedEvents);
+        assertEquals(1, noContradictionEvents);
     }
 }

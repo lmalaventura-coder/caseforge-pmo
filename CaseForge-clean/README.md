@@ -32,12 +32,14 @@ src/test/java/it/university/caseforge/model/
 - Aggiunta sospetti, prove e timeline.
 - Scoperta di una prova.
 - Collegamento prova-sospetto.
-- Accusa finale con valutazione tramite strategy.
+- Accusa finale strutturata con sospetto, prova principale, contraddizione confermata ed evento timeline rilevante.
+- Valutazione finale tramite strategy che pesa tutti gli elementi dell'accusa, non solo il sospetto scelto.
 - Notifica eventi per prova scoperta, collegamento e chiusura caso.
 - Scheletri MVC per controller e view JavaFX.
 - Sistema di interrogatori con domande categorizzate, risposte affidabili e contraddizioni rilevate quando una prova scoperta smentisce una risposta.
-- Riduzione dell'affidabilita del sospetto quando emerge una contraddizione.
+- Riduzione dell'affidabilita del sospetto solo dopo il collegamento manuale di una prova scoperta a una risposta effettivamente contraddittoria.
 - Pannello GUI dedicato alle domande e risposte del sospetto selezionato.
+- GUI riorganizzata come flusso investigativo guidato: procedura visibile, dettagli sospetto/prova, timeline e log eventi affiancati.
 
 ## Comandi Windows
 

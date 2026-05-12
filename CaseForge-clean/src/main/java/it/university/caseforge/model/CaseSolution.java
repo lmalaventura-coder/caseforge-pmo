@@ -1,22 +1,24 @@
 package it.university.caseforge.model;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
-
 public class CaseSolution {
 
     private final String culpritSuspectId;
-    private final Set<String> requiredEvidenceIds;
+    private final String primaryEvidenceId;
+    private final String primaryContradictionId;
+    private final String relevantTimelineEventId;
     private final String explanation;
 
-    public CaseSolution(String culpritSuspectId, Set<String> requiredEvidenceIds, String explanation) {
-        if (culpritSuspectId == null || culpritSuspectId.isBlank()) {
-            throw new IllegalArgumentException("culpritSuspectId cannot be blank.");
-        }
-        this.culpritSuspectId = culpritSuspectId;
-        this.requiredEvidenceIds = Collections.unmodifiableSet(new LinkedHashSet<>(Objects.requireNonNull(requiredEvidenceIds)));
+    public CaseSolution(
+            String culpritSuspectId,
+            String primaryEvidenceId,
+            String primaryContradictionId,
+            String relevantTimelineEventId,
+            String explanation
+    ) {
+        this.culpritSuspectId = requireText(culpritSuspectId, "culpritSuspectId");
+        this.primaryEvidenceId = requireText(primaryEvidenceId, "primaryEvidenceId");
+        this.primaryContradictionId = requireText(primaryContradictionId, "primaryContradictionId");
+        this.relevantTimelineEventId = requireText(relevantTimelineEventId, "relevantTimelineEventId");
         this.explanation = explanation == null ? "" : explanation;
     }
 
@@ -24,11 +26,26 @@ public class CaseSolution {
         return culpritSuspectId;
     }
 
-    public Set<String> getRequiredEvidenceIds() {
-        return requiredEvidenceIds;
+    public String getPrimaryEvidenceId() {
+        return primaryEvidenceId;
+    }
+
+    public String getPrimaryContradictionId() {
+        return primaryContradictionId;
+    }
+
+    public String getRelevantTimelineEventId() {
+        return relevantTimelineEventId;
     }
 
     public String getExplanation() {
         return explanation;
+    }
+
+    private static String requireText(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " cannot be blank.");
+        }
+        return value;
     }
 }

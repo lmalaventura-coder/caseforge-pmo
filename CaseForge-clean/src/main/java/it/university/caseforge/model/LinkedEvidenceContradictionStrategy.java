@@ -11,13 +11,13 @@ public class LinkedEvidenceContradictionStrategy implements ContradictionEvaluat
             return Optional.empty();
         }
 
-        return answer.getLinkedEvidence()
-                .filter(linkedEvidence -> linkedEvidence.getId().equals(evidence.getId()))
-                .map(linkedEvidence -> new Contradiction(
+        return answer.getContradictionEvidence()
+                .filter(contradictionEvidence -> contradictionEvidence.getId().equals(evidence.getId()))
+                .map(contradictionEvidence -> new Contradiction(
                         suspect.getId(),
                         question,
                         answer,
-                        linkedEvidence,
+                        contradictionEvidence,
                         "The discovered evidence conflicts with the recorded answer."
                 ));
     }

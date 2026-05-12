@@ -5,14 +5,11 @@ import it.university.caseforge.model.Accusation;
 import it.university.caseforge.model.CaseFile;
 import it.university.caseforge.model.DeductionEngine;
 import it.university.caseforge.model.EvaluationResult;
-import it.university.caseforge.model.Evidence;
 import it.university.caseforge.model.Investigation;
 import it.university.caseforge.persistence.CaseRepository;
 import it.university.caseforge.view.CaseView;
 
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class InvestigationController implements CaseController {
 
@@ -59,22 +56,35 @@ public class InvestigationController implements CaseController {
     }
 
     @Override
-    public EvaluationResult submitAccusation(String suspectId, Set<String> evidenceIds, String reasoning) {
-        Accusation accusation = new Accusation(suspectId, evidenceIds, reasoning);
-        EvaluationResult result = currentInvestigation().formulateAccusation(accusation, deductionEngine);
-        caseView.showEvaluationResult(result);
-        return result;
+    public void linkEvidenceToAnswer(
+            String evidenceId,
+            String suspectId,
+            String interrogationId,
+            String questionId
+    ) {
+        Investigation currentInvestigation = currentInvestigation();
+        currentInvestigation.linkEvidenceToAnswer(evidenceId, suspectId, interrogationId, questionId);
+        caseView.showCase(currentInvestigation.getCaseFile());
     }
 
     @Override
-    public EvaluationResult submitAccusationWithDiscoveredEvidence(String suspectId, String reasoning) {
-        Investigation currentInvestigation = currentInvestigation();
-        Set<String> discoveredEvidenceIds = currentInvestigation.getCaseFile().getEvidences().stream()
-                .filter(Evidence::isDiscovered)
-                .map(Evidence::getId)
-                .collect(Collectors.toSet());
-
-        return submitAccusation(suspectId, discoveredEvidenceIds, reasoning);
+    public EvaluationResult submitAccusation(
+            String suspectId,
+            String primaryEvidenceId,
+            String primaryContradictionId,
+            String relevantTimelineEventId,
+            String reasoning
+    ) {
+        Accusation accusation = new Accusation(
+                suspectId,
+                primaryEvidenceId,
+                primaryContradictionId,
+                relevantTimelineEventId,
+                reasoning
+        );
+        EvaluationResult result = currentInvestigation().formulateAccusation(accusation, deductionEngine);
+        caseView.showEvaluationResult(result);
+        return result;
     }
 
     private Investigation currentInvestigation() {

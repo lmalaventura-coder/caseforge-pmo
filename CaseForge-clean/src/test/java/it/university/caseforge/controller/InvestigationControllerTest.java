@@ -30,21 +30,53 @@ class InvestigationControllerTest {
     }
 
     @Test
-    void accusationUsesDiscoveredEvidenceCollectedByTheController() {
+    void structuredAccusationUsesEvidenceContradictionAndTimelineSelectedByTheController() {
         RecordingCaseView view = new RecordingCaseView();
         InvestigationController controller = createController(view);
         controller.loadDemoCase();
-        controller.discoverEvidence("ev-fingerprint");
         controller.discoverEvidence("ev-server-log");
-
-        EvaluationResult result = controller.submitAccusationWithDiscoveredEvidence(
+        controller.linkEvidenceToAnswer(
+                "ev-server-log",
                 "sus-marta-greco",
-                "Le prove scoperte puntano alla sospetta corretta."
+                "int-marta-001",
+                "q-marta-server-access"
+        );
+
+        EvaluationResult result = controller.submitAccusation(
+                "sus-marta-greco",
+                "ev-server-log",
+                it.university.caseforge.model.Contradiction.idFor(
+                        "sus-marta-greco",
+                        "q-marta-server-access",
+                        "ev-server-log"
+                ),
+                "tl-server-export",
+                "Prova, contraddizione e timeline convergono."
         );
 
         assertTrue(result.isSolved());
         assertEquals(100, result.getScore());
         assertEquals(result, view.lastEvaluationResult);
+    }
+
+    @Test
+    void controllerLinksDiscoveredEvidenceToSelectedAnswer() {
+        RecordingCaseView view = new RecordingCaseView();
+        InvestigationController controller = createController(view);
+        controller.loadDemoCase();
+        controller.discoverEvidence("ev-server-log");
+
+        controller.linkEvidenceToAnswer(
+                "ev-server-log",
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
+
+        assertEquals(3, view.showCaseCalls);
+        assertTrue(view.lastCaseFile.findSuspectById("sus-marta-greco")
+                .orElseThrow()
+                .getReliabilityScore() < 100);
     }
 
     private InvestigationController createController(RecordingCaseView view) {

@@ -1,6 +1,7 @@
 package it.university.caseforge.model;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class StrictAccusationEvaluationStrategy implements AccusationEvaluationStrategy {
@@ -11,39 +12,125 @@ public class StrictAccusationEvaluationStrategy implements AccusationEvaluationS
                 .orElseThrow(() -> new IllegalStateException("Case has no solution configured."));
 
         boolean correctSuspect = solution.getCulpritSuspectId().equals(accusation.getSuspectId());
-        Set<String> countedEvidence = discoveredSubmittedEvidence(caseFile, accusation);
+        boolean correctPrimaryEvidence = isCorrectPrimaryEvidence(caseFile, accusation, solution);
+        boolean correctPrimaryContradiction = isCorrectPrimaryContradiction(caseFile, accusation, solution);
+        boolean correctTimelineEvent = isCorrectTimelineEvent(caseFile, accusation, solution);
 
-        Set<String> missingEvidence = new LinkedHashSet<>(solution.getRequiredEvidenceIds());
-        missingEvidence.removeAll(countedEvidence);
+        Set<String> missingEvidence = correctPrimaryEvidence
+                ? Set.of()
+                : Set.of(solution.getPrimaryEvidenceId());
 
-        int score = calculateScore(correctSuspect, solution.getRequiredEvidenceIds(), missingEvidence);
-        boolean solved = correctSuspect && missingEvidence.isEmpty();
-        String message = solved
-                ? "Accusation accepted. The case is solved."
-                : "Accusation rejected or incomplete.";
+        int score = calculateScore(
+                correctSuspect,
+                correctPrimaryEvidence,
+                correctPrimaryContradiction,
+                correctTimelineEvent
+        );
+        boolean solved = correctSuspect
+                && correctPrimaryEvidence
+                && correctPrimaryContradiction
+                && correctTimelineEvent;
+        String message = buildMessage(
+                solved,
+                correctSuspect,
+                correctPrimaryEvidence,
+                correctPrimaryContradiction,
+                correctTimelineEvent
+        );
 
-        return new EvaluationResult(solved, correctSuspect, score, message, missingEvidence);
+        return new EvaluationResult(
+                solved,
+                correctSuspect,
+                correctPrimaryEvidence,
+                correctPrimaryContradiction,
+                correctTimelineEvent,
+                score,
+                message,
+                missingEvidence
+        );
     }
 
-    private Set<String> discoveredSubmittedEvidence(CaseFile caseFile, Accusation accusation) {
-        Set<String> discoveredSubmitted = new LinkedHashSet<>();
-        for (String evidenceId : accusation.getEvidenceIds()) {
-            caseFile.findEvidenceById(evidenceId)
-                    .filter(Evidence::isDiscovered)
-                    .map(Evidence::getId)
-                    .ifPresent(discoveredSubmitted::add);
-        }
-        return discoveredSubmitted;
+    private boolean isCorrectPrimaryEvidence(
+            CaseFile caseFile,
+            Accusation accusation,
+            CaseSolution solution
+    ) {
+        return solution.getPrimaryEvidenceId().equals(accusation.getPrimaryEvidenceId())
+                && caseFile.findEvidenceById(accusation.getPrimaryEvidenceId())
+                .filter(Evidence::isDiscovered)
+                .isPresent();
     }
 
-    private int calculateScore(boolean correctSuspect, Set<String> requiredEvidenceIds, Set<String> missingEvidence) {
-        int suspectScore = correctSuspect ? 60 : 0;
-        if (requiredEvidenceIds.isEmpty()) {
-            return suspectScore;
+    private boolean isCorrectPrimaryContradiction(
+            CaseFile caseFile,
+            Accusation accusation,
+            CaseSolution solution
+    ) {
+        if (!solution.getPrimaryContradictionId().equals(accusation.getPrimaryContradictionId())) {
+            return false;
         }
 
-        int foundEvidence = requiredEvidenceIds.size() - missingEvidence.size();
-        int evidenceScore = Math.round((foundEvidence * 40.0f) / requiredEvidenceIds.size());
-        return suspectScore + evidenceScore;
+        return caseFile.findContradictionById(accusation.getPrimaryContradictionId())
+                .filter(contradiction -> contradiction.getSuspectId().equals(accusation.getSuspectId()))
+                .filter(contradiction -> contradiction.getEvidence().getId().equals(accusation.getPrimaryEvidenceId()))
+                .isPresent();
+    }
+
+    private boolean isCorrectTimelineEvent(
+            CaseFile caseFile,
+            Accusation accusation,
+            CaseSolution solution
+    ) {
+        return solution.getRelevantTimelineEventId().equals(accusation.getRelevantTimelineEventId())
+                && caseFile.findTimelineEventById(accusation.getRelevantTimelineEventId()).isPresent();
+    }
+
+    private int calculateScore(
+            boolean correctSuspect,
+            boolean correctPrimaryEvidence,
+            boolean correctPrimaryContradiction,
+            boolean correctTimelineEvent
+    ) {
+        int score = 0;
+        if (correctSuspect) {
+            score += 25;
+        }
+        if (correctPrimaryEvidence) {
+            score += 25;
+        }
+        if (correctPrimaryContradiction) {
+            score += 25;
+        }
+        if (correctTimelineEvent) {
+            score += 25;
+        }
+        return score;
+    }
+
+    private String buildMessage(
+            boolean solved,
+            boolean correctSuspect,
+            boolean correctPrimaryEvidence,
+            boolean correctPrimaryContradiction,
+            boolean correctTimelineEvent
+    ) {
+        if (solved) {
+            return "Accusation accepted. Suspect, evidence, contradiction, and timeline event align.";
+        }
+
+        List<String> missingElements = new ArrayList<>();
+        if (!correctSuspect) {
+            missingElements.add("suspect");
+        }
+        if (!correctPrimaryEvidence) {
+            missingElements.add("primary evidence");
+        }
+        if (!correctPrimaryContradiction) {
+            missingElements.add("confirmed contradiction");
+        }
+        if (!correctTimelineEvent) {
+            missingElements.add("timeline event");
+        }
+        return "Accusation rejected or incomplete: " + String.join(", ", missingElements) + ".";
     }
 }

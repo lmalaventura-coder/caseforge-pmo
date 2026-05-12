@@ -21,12 +21,9 @@ class InvestigationObserverTest {
 
         investigation.discoverEvidence("ev-fingerprint");
 
-        assertEquals(2, events.size());
+        assertEquals(1, events.size());
         assertEquals(InvestigationEventType.EVIDENCE_DISCOVERED, events.get(0).getType());
         assertTrue(events.get(0).getEvidence().orElseThrow().isDiscovered());
-        assertEquals(InvestigationEventType.CONTRADICTION_DETECTED, events.get(1).getType());
-        assertEquals("ev-fingerprint", events.get(1).getEvidence().orElseThrow().getId());
-        assertTrue(events.get(1).getContradiction().isPresent());
     }
 
     @Test
