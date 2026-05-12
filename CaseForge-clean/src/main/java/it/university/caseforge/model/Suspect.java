@@ -51,7 +51,7 @@ public class Suspect {
     public void addInterrogation(Interrogation interrogation) {
         Interrogation nonNullInterrogation = Objects.requireNonNull(interrogation);
         if (!id.equals(nonNullInterrogation.getSuspectId())) {
-            throw new IllegalArgumentException("Interrogation belongs to a different suspect.");
+            throw new IllegalArgumentException("L'interrogatorio appartiene a un sospetto diverso.");
         }
         interrogations.add(nonNullInterrogation);
     }
@@ -62,14 +62,14 @@ public class Suspect {
 
     public void decreaseReliability(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("amount cannot be negative.");
+            throw new IllegalArgumentException("amount non puo essere negativo.");
         }
         reliabilityScore = Math.max(0, reliabilityScore - amount);
     }
 
     private static String requireText(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " cannot be blank.");
+            throw new IllegalArgumentException(fieldName + " non puo essere vuoto.");
         }
         return value;
     }

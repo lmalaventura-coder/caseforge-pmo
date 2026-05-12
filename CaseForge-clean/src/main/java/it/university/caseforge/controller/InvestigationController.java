@@ -6,6 +6,7 @@ import it.university.caseforge.model.CaseFile;
 import it.university.caseforge.model.DeductionEngine;
 import it.university.caseforge.model.EvaluationResult;
 import it.university.caseforge.model.Investigation;
+import it.university.caseforge.observer.InvestigationObserver;
 import it.university.caseforge.persistence.CaseRepository;
 import it.university.caseforge.view.CaseView;
 
@@ -17,6 +18,7 @@ public class InvestigationController implements CaseController {
     private final CaseRepository caseRepository;
     private final DeductionEngine deductionEngine;
     private final CaseView caseView;
+    private final InvestigationObserver caseViewObserver;
 
     private Investigation investigation;
 
@@ -30,15 +32,34 @@ public class InvestigationController implements CaseController {
         this.caseRepository = Objects.requireNonNull(caseRepository);
         this.deductionEngine = Objects.requireNonNull(deductionEngine);
         this.caseView = Objects.requireNonNull(caseView);
+        this.caseViewObserver = caseView::showInvestigationEvent;
     }
 
     @Override
     public void loadDemoCase() {
+        startDemoInvestigation(false);
+    }
+
+    @Override
+    public void resetDemoInvestigation() {
+        startDemoInvestigation(true);
+    }
+
+    private void startDemoInvestigation(boolean resetView) {
+        if (investigation != null) {
+            investigation.removeObserver(caseViewObserver);
+        }
+
         CaseFile caseFile = caseFactory.createDemoCase();
         caseRepository.save(caseFile);
         investigation = new Investigation(caseFile);
-        investigation.addObserver(caseView::showInvestigationEvent);
-        caseView.showCase(caseFile);
+        investigation.addObserver(caseViewObserver);
+
+        if (resetView) {
+            caseView.resetInvestigation(caseFile);
+        } else {
+            caseView.showCase(caseFile);
+        }
     }
 
     @Override
@@ -89,7 +110,7 @@ public class InvestigationController implements CaseController {
 
     private Investigation currentInvestigation() {
         if (investigation == null) {
-            throw new IllegalStateException("No investigation loaded.");
+            throw new IllegalStateException("Nessuna indagine caricata.");
         }
         return investigation;
     }

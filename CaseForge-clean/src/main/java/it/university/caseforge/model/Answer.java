@@ -32,10 +32,10 @@ public class Answer {
 
     public Answer(String id, String text, ReliabilityLevel reliabilityLevel, Evidence contradictionEvidence) {
         if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("id cannot be blank.");
+            throw new IllegalArgumentException("id non puo essere vuoto.");
         }
         if (text == null || text.isBlank()) {
-            throw new IllegalArgumentException("text cannot be blank.");
+            throw new IllegalArgumentException("text non puo essere vuoto.");
         }
         this.id = id;
         this.text = text;

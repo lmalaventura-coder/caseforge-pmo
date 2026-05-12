@@ -9,7 +9,7 @@ public class StrictAccusationEvaluationStrategy implements AccusationEvaluationS
     @Override
     public EvaluationResult evaluate(CaseFile caseFile, Accusation accusation) {
         CaseSolution solution = caseFile.getSolution()
-                .orElseThrow(() -> new IllegalStateException("Case has no solution configured."));
+                .orElseThrow(() -> new IllegalStateException("Il caso non ha una soluzione configurata."));
 
         boolean correctSuspect = solution.getCulpritSuspectId().equals(accusation.getSuspectId());
         boolean correctPrimaryEvidence = isCorrectPrimaryEvidence(caseFile, accusation, solution);
@@ -115,22 +115,22 @@ public class StrictAccusationEvaluationStrategy implements AccusationEvaluationS
             boolean correctTimelineEvent
     ) {
         if (solved) {
-            return "Accusation accepted. Suspect, evidence, contradiction, and timeline event align.";
+            return "Accusa accolta. Sospetto, prova, contraddizione ed evento della cronologia risultano coerenti.";
         }
 
         List<String> missingElements = new ArrayList<>();
         if (!correctSuspect) {
-            missingElements.add("suspect");
+            missingElements.add("sospetto");
         }
         if (!correctPrimaryEvidence) {
-            missingElements.add("primary evidence");
+            missingElements.add("prova principale");
         }
         if (!correctPrimaryContradiction) {
-            missingElements.add("confirmed contradiction");
+            missingElements.add("contraddizione confermata");
         }
         if (!correctTimelineEvent) {
-            missingElements.add("timeline event");
+            missingElements.add("evento della cronologia");
         }
-        return "Accusation rejected or incomplete: " + String.join(", ", missingElements) + ".";
+        return "Accusa respinta o incompleta: " + String.join(", ", missingElements) + ".";
     }
 }

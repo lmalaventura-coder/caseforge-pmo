@@ -55,7 +55,7 @@ public class Investigation {
     public void discoverEvidence(String evidenceId) {
         requireOpen();
         Evidence evidence = caseFile.findEvidenceById(evidenceId)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown evidence: " + evidenceId));
+                .orElseThrow(() -> new IllegalArgumentException("Prova sconosciuta: " + evidenceId));
 
         if (!evidence.isDiscovered()) {
             evidence.markDiscovered();
@@ -66,15 +66,15 @@ public class Investigation {
     public void linkEvidenceToSuspect(String evidenceId, String suspectId) {
         requireOpen();
         Evidence evidence = caseFile.findEvidenceById(evidenceId)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown evidence: " + evidenceId));
+                .orElseThrow(() -> new IllegalArgumentException("Prova sconosciuta: " + evidenceId));
         Suspect suspect = caseFile.findSuspectById(suspectId)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown suspect: " + suspectId));
+                .orElseThrow(() -> new IllegalArgumentException("Sospetto sconosciuto: " + suspectId));
 
         if (!evidence.isLinkedTo(suspectId)) {
             evidence.linkToSuspect(suspect);
             notifyObservers(new InvestigationEvent(
                     InvestigationEventType.EVIDENCE_LINKED_TO_SUSPECT,
-                    "Evidence linked to suspect.",
+                    "Prova collegata al sospetto.",
                     LocalDateTime.now(),
                     evidence,
                     null,
@@ -101,20 +101,20 @@ public class Investigation {
     ) {
         requireOpen();
         Evidence evidence = caseFile.findEvidenceById(evidenceId)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown evidence: " + evidenceId));
+                .orElseThrow(() -> new IllegalArgumentException("Prova sconosciuta: " + evidenceId));
         if (!evidence.isDiscovered()) {
-            throw new IllegalStateException("Evidence must be discovered before linking it to an answer.");
+            throw new IllegalStateException("La prova deve essere scoperta prima di collegarla a una risposta.");
         }
 
         Suspect suspect = caseFile.findSuspectById(suspectId)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown suspect: " + suspectId));
+                .orElseThrow(() -> new IllegalArgumentException("Sospetto sconosciuto: " + suspectId));
         Interrogation interrogation = suspect.getInterrogations().stream()
                 .filter(candidate -> candidate.getId().equals(interrogationId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown interrogation: " + interrogationId));
+                .orElseThrow(() -> new IllegalArgumentException("Interrogatorio sconosciuto: " + interrogationId));
         Question question = interrogation.findQuestionById(questionId)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown question: " + questionId));
-        Answer answer = Objects.requireNonNull(question.getAnswer(), "Question has no answer.");
+                .orElseThrow(() -> new IllegalArgumentException("Domanda sconosciuta: " + questionId));
+        Answer answer = Objects.requireNonNull(question.getAnswer(), "La domanda non ha una risposta.");
 
         if (!answer.linkEvidence(evidence)) {
             return;
@@ -153,7 +153,7 @@ public class Investigation {
 
     private void requireOpen() {
         if (status == InvestigationStatus.CLOSED) {
-            throw new IllegalStateException("Investigation is already closed.");
+            throw new IllegalStateException("L'indagine e gia chiusa.");
         }
     }
 }

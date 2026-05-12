@@ -40,7 +40,7 @@ public class InvestigationEvent {
     public static InvestigationEvent evidenceDiscovered(Evidence evidence, LocalDateTime occurredAt) {
         return new InvestigationEvent(
                 InvestigationEventType.EVIDENCE_DISCOVERED,
-                "Evidence discovered.",
+                "Prova scoperta.",
                 occurredAt,
                 Objects.requireNonNull(evidence),
                 null,
@@ -55,7 +55,7 @@ public class InvestigationEvent {
     ) {
         return new InvestigationEvent(
                 InvestigationEventType.CONTRADICTION_DETECTED,
-                "Contradiction detected.",
+                "Contraddizione rilevata.",
                 occurredAt,
                 contradiction.getEvidence(),
                 null,
@@ -67,7 +67,7 @@ public class InvestigationEvent {
     public static InvestigationEvent evidenceLinkedToAnswer(Evidence evidence, LocalDateTime occurredAt) {
         return new InvestigationEvent(
                 InvestigationEventType.EVIDENCE_LINKED_TO_ANSWER,
-                "Evidence linked to answer.",
+                "Prova collegata alla risposta.",
                 occurredAt,
                 Objects.requireNonNull(evidence),
                 null,
@@ -79,7 +79,7 @@ public class InvestigationEvent {
     public static InvestigationEvent noContradictionDetected(Evidence evidence, LocalDateTime occurredAt) {
         return new InvestigationEvent(
                 InvestigationEventType.NO_CONTRADICTION_DETECTED,
-                "No contradiction detected.",
+                "Nessuna contraddizione rilevata.",
                 occurredAt,
                 Objects.requireNonNull(evidence),
                 null,
@@ -95,7 +95,7 @@ public class InvestigationEvent {
     ) {
         return new InvestigationEvent(
                 InvestigationEventType.CASE_CLOSED,
-                "Case closed.",
+                "Caso chiuso.",
                 occurredAt,
                 null,
                 Objects.requireNonNull(accusation),

@@ -19,10 +19,10 @@ public class Question {
 
     public Question(String id, String text, QuestionCategory category) {
         if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("id cannot be blank.");
+            throw new IllegalArgumentException("id non puo essere vuoto.");
         }
         if (text == null || text.isBlank()) {
-            throw new IllegalArgumentException("text cannot be blank.");
+            throw new IllegalArgumentException("text non puo essere vuoto.");
         }
         this.id = id;
         this.text = text;

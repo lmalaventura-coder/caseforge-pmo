@@ -6,12 +6,19 @@ import it.university.caseforge.model.DeductionEngine;
 import it.university.caseforge.model.EvaluationResult;
 import it.university.caseforge.model.StrictAccusationEvaluationStrategy;
 import it.university.caseforge.observer.InvestigationEvent;
+import it.university.caseforge.observer.InvestigationEventType;
 import it.university.caseforge.persistence.InMemoryCaseRepository;
 import it.university.caseforge.view.CaseView;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InvestigationControllerTest {
@@ -79,6 +86,67 @@ class InvestigationControllerTest {
                 .getReliabilityScore() < 100);
     }
 
+    @Test
+    void resetDemoInvestigationRestoresInitialCaseStateAfterClosure() {
+        RecordingCaseView view = new RecordingCaseView();
+        InvestigationController controller = createController(view);
+        controller.loadDemoCase();
+        controller.discoverEvidence("ev-server-log");
+        controller.linkEvidenceToAnswer(
+                "ev-server-log",
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
+        CaseFile beforeReset = view.lastCaseFile;
+
+        controller.submitAccusation(
+                "sus-marta-greco",
+                "ev-server-log",
+                it.university.caseforge.model.Contradiction.idFor(
+                        "sus-marta-greco",
+                        "q-marta-server-access",
+                        "ev-server-log"
+                ),
+                "tl-server-export",
+                "La ricostruzione e coerente."
+        );
+
+        controller.resetDemoInvestigation();
+
+        CaseFile resetCase = view.lastCaseFile;
+        assertEquals(1, view.resetCalls);
+        assertNotSame(beforeReset, resetCase);
+        assertFalse(resetCase.findEvidenceById("ev-server-log").orElseThrow().isDiscovered());
+        assertEquals(100, resetCase.findSuspectById("sus-marta-greco").orElseThrow().getReliabilityScore());
+        assertEquals(0, resetCase.findSuspectById("sus-marta-greco")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0)
+                .getContradictions()
+                .size());
+        assertEquals(8, resetCase.getTimeline().getEvents().size());
+        assertNull(view.lastEvaluationResult);
+    }
+
+    @Test
+    void resetDemoInvestigationKeepsObserverNotificationsSingleAfterMultipleRestarts() {
+        RecordingCaseView view = new RecordingCaseView();
+        InvestigationController controller = createController(view);
+        controller.loadDemoCase();
+        controller.resetDemoInvestigation();
+        controller.resetDemoInvestigation();
+        view.events.clear();
+
+        controller.discoverEvidence("ev-fingerprint");
+
+        long discoveryEvents = view.events.stream()
+                .filter(event -> event.getType() == InvestigationEventType.EVIDENCE_DISCOVERED)
+                .count();
+        assertEquals(1, discoveryEvents);
+        assertTrue(view.lastCaseFile.findEvidenceById("ev-fingerprint").orElseThrow().isDiscovered());
+    }
+
     private InvestigationController createController(RecordingCaseView view) {
         return new InvestigationController(
                 new DemoCaseFactory(),
@@ -91,8 +159,10 @@ class InvestigationControllerTest {
     private static final class RecordingCaseView implements CaseView {
 
         private int showCaseCalls;
+        private int resetCalls;
         private CaseFile lastCaseFile;
         private EvaluationResult lastEvaluationResult;
+        private final List<InvestigationEvent> events = new ArrayList<>();
 
         @Override
         public void showCase(CaseFile caseFile) {
@@ -101,7 +171,15 @@ class InvestigationControllerTest {
         }
 
         @Override
+        public void resetInvestigation(CaseFile caseFile) {
+            resetCalls++;
+            lastCaseFile = caseFile;
+            lastEvaluationResult = null;
+        }
+
+        @Override
         public void showInvestigationEvent(InvestigationEvent event) {
+            events.add(event);
         }
 
         @Override

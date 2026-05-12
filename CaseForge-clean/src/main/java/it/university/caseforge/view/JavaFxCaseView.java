@@ -58,6 +58,7 @@ public class JavaFxCaseView implements CaseView {
     private final Button discoverEvidenceButton = new Button("Scopri prova selezionata");
     private final Button linkEvidenceButton = new Button("Collega prova selezionata alla risposta selezionata");
     private final Button formulateAccusationButton = new Button("Formula accusa");
+    private final Button resetInvestigationButton = new Button("Nuova indagine");
 
     private CaseController controller;
     private CaseFile currentCaseFile;
@@ -131,9 +132,27 @@ public class JavaFxCaseView implements CaseView {
 
         if (!caseLoaded) {
             statusLabel.setText("Caso demo caricato.");
-            appendLog("Caso demo caricato. Inizia selezionando un sospetto, poi esamina prove e timeline.");
+            appendLog("Caso demo caricato. Inizia selezionando un sospetto, poi esamina prove e cronologia.");
             caseLoaded = true;
         }
+    }
+
+    @Override
+    public void resetInvestigation(CaseFile caseFile) {
+        refreshingView = true;
+        try {
+            clearInvestigationSelections();
+            logArea.clear();
+            selectedSuspectLabel.setText("Sospetto selezionato: nessuno");
+            selectedEvidenceLabel.setText("Prova selezionata: nessuna");
+        } finally {
+            refreshingView = false;
+        }
+
+        showCase(caseFile);
+        statusLabel.setText("Nuova indagine avviata.");
+        appendLog("Nuova indagine avviata. Il caso demo e stato ripristinato.");
+        appendLog("Seleziona un sospetto, poi esamina prove e cronologia.");
     }
 
     @Override
@@ -145,7 +164,7 @@ public class JavaFxCaseView implements CaseView {
 
     @Override
     public void showEvaluationResult(EvaluationResult result) {
-        String message = result.getMessage() + " Score: " + result.getScore();
+        String message = result.getMessage() + " Punteggio: " + result.getScore();
         if (!result.getMissingEvidenceIds().isEmpty()) {
             message += " | Prove mancanti: " + String.join(", ", result.getMissingEvidenceIds());
         }
@@ -181,7 +200,7 @@ public class JavaFxCaseView implements CaseView {
         Label heading = sectionHeading("Procedura investigativa");
         HBox steps = new HBox(10,
                 procedureStep("1. Seleziona un sospetto"),
-                procedureStep("2. Esamina prove e timeline"),
+                procedureStep("2. Esamina prove e cronologia"),
                 procedureStep("3. Interroga il sospetto"),
                 procedureStep("4. Collega prove alle risposte"),
                 procedureStep("5. Formula accusa")
@@ -270,7 +289,7 @@ public class JavaFxCaseView implements CaseView {
         logArea.setPrefRowCount(14);
 
         VBox timelinePanel = new VBox(8,
-                sectionHeading("Timeline investigativa"),
+                sectionHeading("Cronologia investigativa"),
                 timelineList
         );
         VBox.setVgrow(timelineList, Priority.ALWAYS);
@@ -299,12 +318,13 @@ public class JavaFxCaseView implements CaseView {
         primaryEvidenceComboBox.setPrefWidth(250);
         primaryContradictionComboBox.setPromptText("Contraddizione principale");
         primaryContradictionComboBox.setPrefWidth(360);
-        relevantTimelineComboBox.setPromptText("Evento timeline rilevante");
+        relevantTimelineComboBox.setPromptText("Evento della cronologia rilevante");
         relevantTimelineComboBox.setPrefWidth(300);
         discoverEvidenceButton.setPrefWidth(190);
         linkEvidenceButton.setPrefWidth(320);
         linkEvidenceButton.setWrapText(true);
         formulateAccusationButton.setPrefWidth(150);
+        resetInvestigationButton.setPrefWidth(170);
 
         HBox investigativeActions = new HBox(12,
                 discoverEvidenceButton,
@@ -316,8 +336,9 @@ public class JavaFxCaseView implements CaseView {
                 accusationField("Sospetto", accusedSuspectComboBox),
                 accusationField("Prova principale", primaryEvidenceComboBox),
                 accusationField("Contraddizione", primaryContradictionComboBox),
-                accusationField("Evento timeline", relevantTimelineComboBox),
-                formulateAccusationButton
+                accusationField("Evento cronologia", relevantTimelineComboBox),
+                formulateAccusationButton,
+                resetInvestigationButton
         );
         accusationSelectors.setAlignment(Pos.BOTTOM_LEFT);
 
@@ -354,7 +375,7 @@ public class JavaFxCaseView implements CaseView {
                 refreshPrimaryContradictionOptions(null);
                 if (current != null) {
                     appendLog("Sospetto scelto per l'accusa: " + current.name()
-                            + ". Ora seleziona prova, contraddizione ed evento timeline.");
+                            + ". Ora seleziona prova, contraddizione ed evento della cronologia.");
                 }
             }
         });
@@ -414,12 +435,12 @@ public class JavaFxCaseView implements CaseView {
             }
             TimelineEventItem relevantTimelineEvent = relevantTimelineComboBox.getValue();
             if (relevantTimelineEvent == null) {
-                appendLog("Per formulare l'accusa, seleziona un evento timeline rilevante.");
+                appendLog("Per formulare l'accusa, seleziona un evento della cronologia rilevante.");
                 return;
             }
 
             appendLog("Accusa strutturata formulata contro " + accusedSuspect.name()
-                    + " con prova, contraddizione ed evento timeline selezionati.");
+                    + " con prova, contraddizione ed evento della cronologia selezionati.");
             controller.submitAccusation(
                     accusedSuspect.id(),
                     primaryEvidence.id(),
@@ -428,6 +449,8 @@ public class JavaFxCaseView implements CaseView {
                     "Accusa formulata dalla GUI con dossier strutturato."
             );
         }));
+
+        resetInvestigationButton.setOnAction(event -> withController(() -> controller.resetDemoInvestigation()));
     }
 
     private SuspectItem toSuspectItem(CaseFile caseFile, Suspect suspect) {
@@ -594,10 +617,10 @@ public class JavaFxCaseView implements CaseView {
     private String evidenceRelevance(List<String> linkedSuspects, boolean discovered) {
         if (!linkedSuspects.isEmpty()) {
             return "aiuta a confrontare " + String.join(", ", linkedSuspects)
-                    + " con timeline, accessi e dichiarazioni.";
+                    + " con cronologia, accessi e dichiarazioni.";
         }
         if (discovered) {
-            return "e una prova gia emersa da valutare insieme alla timeline e agli interrogatori.";
+            return "e una prova gia emersa da valutare insieme alla cronologia e agli interrogatori.";
         }
         return "scoprirla puo chiarire accessi, movimenti o alibi ancora aperti.";
     }
@@ -659,6 +682,16 @@ public class JavaFxCaseView implements CaseView {
 
     private void restoreRelevantTimelineSelection(String timelineEventId) {
         selectComboItemById(relevantTimelineComboBox, timelineEventId);
+    }
+
+    private void clearInvestigationSelections() {
+        suspectList.getSelectionModel().clearSelection();
+        evidenceList.getSelectionModel().clearSelection();
+        accusedSuspectComboBox.setValue(null);
+        primaryEvidenceComboBox.setValue(null);
+        primaryContradictionComboBox.setValue(null);
+        relevantTimelineComboBox.setValue(null);
+        answerComboBox.setValue(null);
     }
 
     private void refreshPrimaryContradictionOptions(String preferredContradictionId) {

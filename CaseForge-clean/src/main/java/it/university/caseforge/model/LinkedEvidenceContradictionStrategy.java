@@ -18,7 +18,7 @@ public class LinkedEvidenceContradictionStrategy implements ContradictionEvaluat
                         question,
                         answer,
                         contradictionEvidence,
-                        "The discovered evidence conflicts with the recorded answer."
+                        "La prova scoperta contraddice la risposta registrata."
                 ));
     }
 }

@@ -16,7 +16,7 @@ public class Interrogation {
 
     public Interrogation(String id, Suspect suspect, LocalDateTime startedAt) {
         if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("id cannot be blank.");
+            throw new IllegalArgumentException("id non puo essere vuoto.");
         }
         this.id = id;
         this.suspectId = Objects.requireNonNull(suspect).getId();

@@ -8,6 +8,8 @@ public interface CaseView {
 
     void showCase(CaseFile caseFile);
 
+    void resetInvestigation(CaseFile caseFile);
+
     void showInvestigationEvent(InvestigationEvent event);
 
     void showEvaluationResult(EvaluationResult result);

@@ -6,6 +6,8 @@ public interface CaseController {
 
     void loadDemoCase();
 
+    void resetDemoInvestigation();
+
     void discoverEvidence(String evidenceId);
 
     void linkEvidenceToSuspect(String evidenceId, String suspectId);

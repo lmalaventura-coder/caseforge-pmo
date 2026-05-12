@@ -44,7 +44,7 @@ public class Accusation {
 
     private static String requireText(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " cannot be blank.");
+            throw new IllegalArgumentException(fieldName + " non puo essere vuoto.");
         }
         return value;
     }

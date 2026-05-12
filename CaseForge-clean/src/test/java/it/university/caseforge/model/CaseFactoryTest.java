@@ -24,7 +24,7 @@ class CaseFactoryTest {
     void demoCasePresentsACoherentStartupInvestigation() {
         CaseFile caseFile = new DemoCaseFactory().createDemoCase();
 
-        assertEquals("Startup Midnight Breach", caseFile.getTitle());
+        assertEquals("Violazione di mezzanotte in HelixNova", caseFile.getTitle());
         assertTrue(caseFile.getDescription().contains("HelixNova"));
         assertTrue(caseFile.findEvidenceById("ev-email-warning").isPresent());
         assertTrue(caseFile.findEvidenceById("ev-badge-log").isPresent());

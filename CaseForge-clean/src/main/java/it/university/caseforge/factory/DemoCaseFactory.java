@@ -34,96 +34,96 @@ public class DemoCaseFactory implements CaseFactory {
         Suspect marta = suspectFactory.createSuspect(
                 "sus-marta-greco",
                 "Marta Greco",
-                "Chief financial officer of the startup and holder of emergency payment credentials.",
-                "A pending investor audit could expose unauthorized transfers hidden in vendor budgets.",
-                "Claims she joined a remote board call from home after 21:30."
+                "Direttrice finanziaria della startup e titolare delle credenziali di pagamento d'emergenza.",
+                "Un audit imminente degli investitori potrebbe far emergere trasferimenti non autorizzati nascosti nei budget dei fornitori.",
+                "Sostiene di essersi collegata da casa a una riunione da remoto del consiglio dopo le 21:30."
         );
 
         Suspect luca = suspectFactory.createSuspect(
                 "sus-luca-conti",
                 "Luca Conti",
-                "Co-founder recently removed from product leadership after a bitter governance dispute.",
-                "He wanted leverage before signing away his remaining voting rights.",
-                "Says he returned only to collect archived prototypes and left before the incident."
+                "Co-fondatore appena estromesso dalla guida del prodotto dopo un duro scontro societario.",
+                "Voleva aumentare il proprio potere negoziale prima di cedere gli ultimi diritti di voto.",
+                "Dice di essere rientrato solo per recuperare prototipi archiviati e di essere andato via prima dell'incidente."
         );
 
         Suspect sofia = suspectFactory.createSuspect(
                 "sus-sofia-rinaldi",
                 "Sofia Rinaldi",
-                "Senior platform engineer responsible for deployment pipelines and privileged server access.",
-                "A canceled promotion and blame for recent outages gave her a credible personal grievance.",
-                "Maintains she stayed on a production bridge call with two colleagues."
+                "Ingegnera senior di piattaforma, responsabile delle pipeline di rilascio e degli accessi privilegiati ai server.",
+                "Una promozione annullata e le accuse per recenti disservizi le davano un risentimento personale credibile.",
+                "Afferma di essere rimasta in chiamata operativa con due colleghi durante la finestra critica."
         );
 
         Suspect davide = suspectFactory.createSuspect(
                 "sus-davide-serra",
                 "Davide Serra",
-                "Head of partnerships negotiating a make-or-break contract the victim was ready to reject.",
-                "The victim's refusal would cost him a performance bonus and weaken his position.",
-                "Claims he was meeting a partner downtown and never returned to headquarters."
+                "Responsabile partnership impegnato in una trattativa decisiva che la vittima era pronta a respingere.",
+                "Il rifiuto della vittima gli avrebbe fatto perdere un bonus e avrebbe indebolito la sua posizione.",
+                "Sostiene di aver incontrato un partner in centro e di non essere mai rientrato in sede."
         );
 
         DigitalEvidence emailWarning = evidenceFactory.createDigitalEvidence(
                 "ev-email-warning",
-                "Email: audit escalation",
-                "An internal email from the victim announces that vendor reimbursements will be audited at 09:00.",
-                "Victim mailbox export",
+                "Email: escalation dell'audit",
+                "Una email interna della vittima annuncia che i rimborsi ai fornitori saranno verificati alle 09:00.",
+                "Esportazione della casella email della vittima",
                 "SHA-256:email-audit-warning"
         );
 
         DigitalEvidence badgeAccessLog = evidenceFactory.createDigitalEvidence(
                 "ev-badge-log",
-                "Badge access log",
-                "The rear office badge reader records Marta entering the executive floor at 22:11.",
-                "Building access controller",
+                "Registro accessi badge",
+                "Il lettore badge dell'ingresso posteriore registra Marta al piano direzionale alle 22:11.",
+                "Controller accessi dell'edificio",
                 "SHA-256:badge-entry-2211"
         );
 
         TestimonyEvidence witnessStatement = evidenceFactory.createTestimonyEvidence(
                 "ev-guard-statement",
-                "Guard testimony",
-                "The night guard saw a woman in a graphite coat leave the executive floor shortly after 22:30.",
-                "Night guard Elena Valli",
-                "She walked quickly, avoided the front desk, and kept a laptop bag close."
+                "Testimonianza della guardia",
+                "La guardia notturna ha visto una donna con cappotto color grafite lasciare il piano direzionale poco dopo le 22:30.",
+                "Guardia notturna Elena Valli",
+                "Camminava in fretta, ha evitato il banco reception e teneva stretta una borsa porta computer."
         );
 
         PhysicalEvidence fingerprint = evidenceFactory.createPhysicalEvidence(
                 "ev-fingerprint",
-                "Fingerprint on trophy shard",
-                "A partial print matching Marta was recovered from a cracked acrylic award found near the victim.",
-                "Executive meeting room",
-                "Latent fingerprint"
+                "Impronta su frammento di trofeo",
+                "Una traccia parziale compatibile con Marta e stata rilevata su un premio acrilico incrinato trovato vicino alla vittima.",
+                "Sala riunioni direzionale",
+                "Impronta latente"
         );
 
         DigitalEvidence phoneCall = evidenceFactory.createDigitalEvidence(
                 "ev-call-record",
-                "Phone call record",
-                "Davide placed a thirteen-minute call to an investor contact during the critical window.",
-                "Carrier metadata extract",
+                "Registro telefonata",
+                "Davide ha effettuato una chiamata di tredici minuti a un contatto degli investitori durante la finestra critica.",
+                "Estratto metadati dell'operatore",
                 "SHA-256:call-davide-investor"
         );
 
         DigitalEvidence serverLog = evidenceFactory.createDigitalEvidence(
                 "ev-server-log",
-                "Server privilege log",
-                "A privileged session from Marta's laptop exports payment reconciliation files at 22:18.",
-                "Finance data server",
+                "Log privilegiati del server",
+                "Una sessione privilegiata dal portatile di Marta esporta file di riconciliazione pagamenti alle 22:18.",
+                "Server dati finanziari",
                 "SHA-256:server-export-2218"
         );
 
         PhysicalEvidence parkingTicket = evidenceFactory.createPhysicalEvidence(
                 "ev-parking-ticket",
-                "Parking garage ticket",
-                "A paid exit ticket places Davide's car in the city garage at 22:24, away from headquarters.",
-                "Garage kiosk receipt",
-                "Printed thermal ticket"
+                "Ticket del parcheggio",
+                "Un ticket di uscita pagato colloca l'auto di Davide nel garage cittadino alle 22:24, lontano dalla sede.",
+                "Ricevuta del chiosco parcheggio",
+                "Scontrino termico stampato"
         );
 
         DigitalEvidence chatMessage = evidenceFactory.createDigitalEvidence(
                 "ev-chat-message",
-                "Encrypted team chat export",
-                "Sofia writes that she will stay on the release bridge until the rollback is stable.",
-                "Incident chat archive",
+                "Esportazione chat cifrata del team",
+                "Sofia scrive che restera sulla call di rilascio finche il rollback non sara stabile.",
+                "Archivio chat dell'incidente",
                 "SHA-256:chat-release-bridge"
         );
 
@@ -131,12 +131,12 @@ public class DemoCaseFactory implements CaseFactory {
         Interrogation lucaInterrogation = createLucaInterrogation(luca);
         Interrogation sofiaInterrogation = createSofiaInterrogation(sofia);
 
-        return CaseFile.builder("case-001", "Startup Midnight Breach")
+        return CaseFile.builder("case-001", "Violazione di mezzanotte in HelixNova")
                 .description(
-                        "At 22:36, the founder of HelixNova is found unconscious in the executive meeting room, "
-                                + "minutes after preparing an audit package for investors. Sensitive finance exports "
-                                + "vanish from the server, the office access timeline fractures, and several senior "
-                                + "staff have both motive and proximity."
+                        "Alle 22:36, il fondatore di HelixNova viene trovato privo di sensi nella sala riunioni "
+                                + "direzionale, pochi minuti dopo aver preparato un dossier di audit per gli investitori. "
+                                + "Dal server spariscono esportazioni finanziarie sensibili, la cronologia degli accessi "
+                                + "si frammenta e diversi dirigenti hanno sia un movente sia una presenza plausibile."
                 )
                 .addSuspect(marta)
                 .addSuspect(luca)
@@ -156,57 +156,57 @@ public class DemoCaseFactory implements CaseFactory {
                 .addTimelineEvent(new TimelineEvent(
                         "tl-audit-mail",
                         LocalDateTime.of(2026, 3, 4, 18, 12),
-                        "Audit email sent",
-                        "The victim warns leadership that reimbursement files will be audited the next morning.",
+                        "Email sull'audit inviata",
+                        "La vittima avverte la direzione che i file dei rimborsi saranno verificati la mattina seguente.",
                         null
                 ))
                 .addTimelineEvent(new TimelineEvent(
                         "tl-investor-call",
                         LocalDateTime.of(2026, 3, 4, 21, 48),
-                        "Partnership call begins",
-                        "Davide calls an investor contact from downtown before the office incident.",
+                        "Inizia la chiamata sulla partnership",
+                        "Davide contatta un referente degli investitori dal centro prima dell'incidente in ufficio.",
                         "sus-davide-serra"
                 ))
                 .addTimelineEvent(new TimelineEvent(
                         "tl-badge-entry",
                         LocalDateTime.of(2026, 3, 4, 22, 11),
-                        "Executive floor badge entry",
-                        "The rear reader accepts Marta's badge on the executive floor.",
+                        "Ingresso badge al piano direzionale",
+                        "Il lettore posteriore accetta il badge di Marta al piano direzionale.",
                         "sus-marta-greco"
                 ))
                 .addTimelineEvent(new TimelineEvent(
                         "tl-server-export",
                         LocalDateTime.of(2026, 3, 4, 22, 18),
-                        "Sensitive export detected",
-                        "Finance reconciliation files are exported through a privileged server session.",
+                        "Esportazione sensibile rilevata",
+                        "I file di riconciliazione finanziaria vengono esportati tramite una sessione privilegiata del server.",
                         "sus-marta-greco"
                 ))
                 .addTimelineEvent(new TimelineEvent(
                         "tl-parking-exit",
                         LocalDateTime.of(2026, 3, 4, 22, 24),
-                        "Garage exit paid",
-                        "A parking ticket confirms Davide's vehicle exits a downtown garage.",
+                        "Uscita dal garage pagata",
+                        "Un ticket del parcheggio conferma che l'auto di Davide lascia un garage in centro.",
                         "sus-davide-serra"
                 ))
                 .addTimelineEvent(new TimelineEvent(
                         "tl-chat-bridge",
                         LocalDateTime.of(2026, 3, 4, 22, 27),
-                        "Release bridge chat",
-                        "Sofia posts a rollback status update in the production incident channel.",
+                        "Chat della call di rilascio",
+                        "Sofia pubblica un aggiornamento sul rollback nel canale dell'incidente di produzione.",
                         "sus-sofia-rinaldi"
                 ))
                 .addTimelineEvent(new TimelineEvent(
                         "tl-witness-exit",
                         LocalDateTime.of(2026, 3, 4, 22, 31),
-                        "Witnessed exit",
-                        "The night guard reports a woman leaving the executive floor in a hurry.",
+                        "Uscita osservata",
+                        "La guardia notturna riferisce di una donna che lascia in fretta il piano direzionale.",
                         "sus-marta-greco"
                 ))
                 .addTimelineEvent(new TimelineEvent(
                         "tl-victim-found",
                         LocalDateTime.of(2026, 3, 4, 22, 36),
-                        "Victim discovered",
-                        "Security finds the founder injured beside broken acrylic fragments.",
+                        "Vittima ritrovata",
+                        "La sicurezza trova il fondatore ferito accanto a frammenti di acrilico spezzati.",
                         null
                 ))
                 .solution(new CaseSolution(
@@ -218,8 +218,8 @@ public class DemoCaseFactory implements CaseFactory {
                                 "ev-server-log"
                         ),
                         "tl-server-export",
-                        "Marta Greco staged a late remote-work alibi while retrieving sensitive files and "
-                                + "confronting the founder over the audit."
+                        "Marta Greco ha costruito un alibi da lavoro remoto mentre recuperava file sensibili "
+                                + "e affrontava il fondatore per l'audit."
                 ))
                 .build();
     }
@@ -237,36 +237,36 @@ public class DemoCaseFactory implements CaseFactory {
 
         Question serverAccess = new Question(
                 "q-marta-server-access",
-                "Did you access company finance systems after 22:00?",
+                "Ha effettuato accessi ai sistemi finanziari aziendali dopo le 22:00?",
                 QuestionCategory.ACCESS
         );
         serverAccess.answerWith(new Answer(
                 "ans-marta-server-access",
-                "No. I stayed on the board call and never opened finance tools.",
+                "No. Sono rimasta nella riunione del consiglio e non ho mai aperto strumenti finanziari.",
                 ReliabilityLevel.HIGH,
                 serverLog
         ));
 
         Question meetingRoom = new Question(
                 "q-marta-meeting-room",
-                "Did you enter the executive meeting room after office hours?",
+                "E entrata nella sala riunioni direzionale dopo l'orario d'ufficio?",
                 QuestionCategory.TIMELINE
         );
         meetingRoom.answerWith(new Answer(
                 "ans-marta-meeting-room",
-                "No. I had no reason to go back to headquarters.",
+                "No. Non avevo alcun motivo per tornare in sede.",
                 ReliabilityLevel.MEDIUM,
                 fingerprint
         ));
 
         Question motive = new Question(
                 "q-marta-audit-worry",
-                "Were you worried about the audit announced that evening?",
+                "Era preoccupata per l'audit annunciato quella sera?",
                 QuestionCategory.MOTIVE
         );
         motive.answerWith(new Answer(
                 "ans-marta-audit-worry",
-                "It was routine. I was not personally concerned.",
+                "Era una procedura ordinaria. Non ero preoccupata a livello personale.",
                 ReliabilityLevel.MEDIUM
         ));
 
@@ -285,23 +285,23 @@ public class DemoCaseFactory implements CaseFactory {
 
         Question emailReaction = new Question(
                 "q-luca-audit-email",
-                "Did the audit email change your plans that evening?",
+                "L'email sull'audit ha cambiato i suoi piani per quella sera?",
                 QuestionCategory.MOTIVE
         );
         emailReaction.answerWith(new Answer(
                 "ans-luca-audit-email",
-                "I read it, but it did not involve my current role.",
+                "L'ho letta, ma non riguardava il mio ruolo attuale.",
                 ReliabilityLevel.MEDIUM
         ));
 
         Question access = new Question(
                 "q-luca-access-floor",
-                "Did you access the executive floor after 22:00?",
+                "Ha raggiunto il piano direzionale dopo le 22:00?",
                 QuestionCategory.ACCESS
         );
         access.answerWith(new Answer(
                 "ans-luca-access-floor",
-                "No. My visit ended before the building entered night mode.",
+                "No. La mia visita si e conclusa prima che l'edificio passasse alla modalita notturna.",
                 ReliabilityLevel.MEDIUM
         ));
 
@@ -319,23 +319,23 @@ public class DemoCaseFactory implements CaseFactory {
 
         Question releaseBridge = new Question(
                 "q-sofia-release-bridge",
-                "Were you continuously present on the release bridge during the incident window?",
+                "E rimasta presente senza interruzioni sulla call di rilascio durante la finestra dell'incidente?",
                 QuestionCategory.TIMELINE
         );
         releaseBridge.answerWith(new Answer(
                 "ans-sofia-release-bridge",
-                "Yes. I was coordinating rollback steps in chat and on the incident call.",
+                "Si. Coordinavo i passaggi di rollback in chat e nella chiamata dell'incidente.",
                 ReliabilityLevel.HIGH
         ));
 
         Question motive = new Question(
                 "q-sofia-promotion",
-                "Did you resent leadership after the promotion delay?",
+                "Provava risentimento verso la direzione dopo il rinvio della promozione?",
                 QuestionCategory.MOTIVE
         );
         motive.answerWith(new Answer(
                 "ans-sofia-promotion",
-                "I was angry, but I wanted the platform stable, not revenge.",
+                "Ero arrabbiata, ma volevo una piattaforma stabile, non vendetta.",
                 ReliabilityLevel.MEDIUM
         ));
 

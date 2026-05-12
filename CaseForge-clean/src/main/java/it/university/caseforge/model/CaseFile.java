@@ -86,7 +86,7 @@ public class CaseFile {
         Interrogation nonNullInterrogation = Objects.requireNonNull(interrogation);
         Suspect suspect = findSuspectById(nonNullInterrogation.getSuspectId())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Unknown suspect for interrogation: " + nonNullInterrogation.getSuspectId()
+                        "Sospetto sconosciuto per l'interrogatorio: " + nonNullInterrogation.getSuspectId()
                 ));
         interrogations.add(nonNullInterrogation);
         suspect.addInterrogation(nonNullInterrogation);
@@ -117,19 +117,19 @@ public class CaseFile {
 
     private void ensureUniqueSuspect(String suspectId) {
         if (findSuspectById(suspectId).isPresent()) {
-            throw new IllegalArgumentException("Duplicate suspect id: " + suspectId);
+            throw new IllegalArgumentException("ID sospetto duplicato: " + suspectId);
         }
     }
 
     private void ensureUniqueEvidence(String evidenceId) {
         if (findEvidenceById(evidenceId).isPresent()) {
-            throw new IllegalArgumentException("Duplicate evidence id: " + evidenceId);
+            throw new IllegalArgumentException("ID prova duplicato: " + evidenceId);
         }
     }
 
     private static String requireText(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " cannot be blank.");
+            throw new IllegalArgumentException(fieldName + " non puo essere vuoto.");
         }
         return value;
     }
@@ -196,14 +196,14 @@ public class CaseFile {
             Set<String> suspectIds = new HashSet<>();
             for (Suspect suspect : suspects) {
                 if (!suspectIds.add(suspect.getId())) {
-                    throw new IllegalArgumentException("Duplicate suspect id: " + suspect.getId());
+                    throw new IllegalArgumentException("ID sospetto duplicato: " + suspect.getId());
                 }
             }
 
             Set<String> evidenceIds = new HashSet<>();
             for (Evidence evidence : evidences) {
                 if (!evidenceIds.add(evidence.getId())) {
-                    throw new IllegalArgumentException("Duplicate evidence id: " + evidence.getId());
+                    throw new IllegalArgumentException("ID prova duplicato: " + evidence.getId());
                 }
             }
         }
@@ -213,7 +213,7 @@ public class CaseFile {
         for (Interrogation interrogation : interrogations) {
             Suspect suspect = findSuspectById(interrogation.getSuspectId())
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "Unknown suspect for interrogation: " + interrogation.getSuspectId()
+                            "Sospetto sconosciuto per l'interrogatorio: " + interrogation.getSuspectId()
                     ));
             suspect.addInterrogation(interrogation);
         }

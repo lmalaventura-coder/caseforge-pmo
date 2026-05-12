@@ -19,7 +19,7 @@ public class Contradiction {
             String explanation
     ) {
         if (suspectId == null || suspectId.isBlank()) {
-            throw new IllegalArgumentException("suspectId cannot be blank.");
+            throw new IllegalArgumentException("suspectId non puo essere vuoto.");
         }
         this.id = idFor(suspectId, Objects.requireNonNull(question).getId(), Objects.requireNonNull(evidence).getId());
         this.suspectId = suspectId;
@@ -63,7 +63,7 @@ public class Contradiction {
 
     private static String requireText(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " cannot be blank.");
+            throw new IllegalArgumentException(fieldName + " non puo essere vuoto.");
         }
         return value;
     }
