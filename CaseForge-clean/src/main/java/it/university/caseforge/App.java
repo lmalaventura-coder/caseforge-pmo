@@ -10,6 +10,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public class App extends Application {
 
     public static void main(String[] args) {
@@ -30,6 +32,9 @@ public class App extends Application {
         controller.loadDemoCase();
 
         Scene scene = new Scene(view.getRoot(), 1280, 820);
+        scene.getStylesheets().add(Objects.requireNonNull(
+                App.class.getResource("/it/university/caseforge/caseforge-dark.css")
+        ).toExternalForm());
         stage.setTitle("CaseForge");
         stage.setMinWidth(1080);
         stage.setMinHeight(720);

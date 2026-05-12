@@ -1,0 +1,306 @@
+.caseforge-root {
+    -fx-background-color: #0c1218;
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-text-fill: #dbe5ee;
+}
+
+.label {
+    -fx-text-fill: #dbe5ee;
+}
+
+.header-panel {
+    -fx-spacing: 10px;
+}
+
+.case-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f6f8fb;
+}
+
+.case-description {
+    -fx-font-size: 13px;
+    -fx-text-fill: #b7c6d4;
+}
+
+.status-banner {
+    -fx-background-color: #1a2631;
+    -fx-border-color: #3c5264;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 10px 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d8e7f2;
+}
+
+.procedure-panel,
+.workspace-panel,
+.action-panel {
+    -fx-background-color: #18222b;
+    -fx-border-color: #334552;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 14px;
+}
+
+.procedure-step {
+    -fx-background-color: #22313d;
+    -fx-border-color: #41596a;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 9px 11px;
+    -fx-text-fill: #e3edf5;
+    -fx-font-weight: bold;
+}
+
+.workspace,
+.center-column,
+.right-column,
+.split-evidence-area,
+.action-strip,
+.accusation-fields,
+.accusation-block {
+    -fx-spacing: 14px;
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f0f4f8;
+    -fx-padding: 0 0 2px 0;
+}
+
+.accusation-heading {
+    -fx-text-fill: #f7e7cf;
+    -fx-background-color: #2b2218;
+    -fx-border-color: #6b5637;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+}
+
+.field-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #a9bccb;
+}
+
+.selection-summary {
+    -fx-padding: 4px 0 4px 0;
+}
+
+.selection-chip {
+    -fx-background-color: #1a252f;
+    -fx-border-color: #314352;
+    -fx-border-radius: 999px;
+    -fx-background-radius: 999px;
+    -fx-padding: 7px 12px;
+    -fx-text-fill: #d8e4ee;
+    -fx-font-weight: bold;
+}
+
+.dossier-list {
+    -fx-background-color: #101820;
+    -fx-control-inner-background: #101820;
+    -fx-border-color: #344754;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 4px;
+}
+
+.dossier-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 9px 10px;
+    -fx-border-color: transparent transparent #24323d transparent;
+}
+
+.dossier-list .list-cell:filled:selected {
+    -fx-background-color: #223242;
+    -fx-border-color: #3d5669;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.timeline-list .list-cell,
+.interrogation-list .list-cell {
+    -fx-text-fill: #d5e0ea;
+    -fx-font-size: 13px;
+    -fx-line-spacing: 1px;
+}
+
+.list-primary-text {
+    -fx-font-weight: bold;
+    -fx-text-fill: #f1f5f9;
+}
+
+.list-secondary-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: #95aabd;
+}
+
+.badge {
+    -fx-padding: 4px 9px;
+    -fx-background-radius: 999px;
+    -fx-border-radius: 999px;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.reliability-high {
+    -fx-background-color: #17372a;
+    -fx-border-color: #2f7655;
+    -fx-text-fill: #a7efc8;
+}
+
+.reliability-medium {
+    -fx-background-color: #3a3116;
+    -fx-border-color: #8b7130;
+    -fx-text-fill: #f7db8a;
+}
+
+.reliability-low {
+    -fx-background-color: #40251d;
+    -fx-border-color: #9b5c46;
+    -fx-text-fill: #ffc0ae;
+}
+
+.reliability-critical {
+    -fx-background-color: #421c24;
+    -fx-border-color: #a94760;
+    -fx-text-fill: #ffb8c9;
+}
+
+.evidence-status-discovered {
+    -fx-background-color: #19372a;
+    -fx-border-color: #41785c;
+    -fx-text-fill: #bfe9cf;
+}
+
+.evidence-status-hidden {
+    -fx-background-color: #342b20;
+    -fx-border-color: #786043;
+    -fx-text-fill: #ead5b7;
+}
+
+.evidence-cell.evidence-discovered {
+    -fx-background-color: rgba(62, 122, 91, 0.16);
+}
+
+.evidence-cell.evidence-undiscovered {
+    -fx-background-color: rgba(155, 122, 82, 0.08);
+}
+
+.detail-area {
+    -fx-control-inner-background: #111a22;
+    -fx-background-color: #111a22;
+    -fx-text-fill: #dbe5ee;
+    -fx-highlight-fill: #305b74;
+    -fx-highlight-text-fill: #ffffff;
+    -fx-border-color: #344754;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-font-size: 13px;
+    -fx-padding: 3px;
+}
+
+.detail-area .content {
+    -fx-background-color: #111a22;
+    -fx-background-radius: 6px;
+}
+
+.log-area {
+    -fx-font-family: "Cascadia Mono", "Consolas", monospace;
+    -fx-font-size: 13px;
+    -fx-text-fill: #d9e6f0;
+    -fx-background-color: #0f171f;
+    -fx-control-inner-background: #0f171f;
+    -fx-border-color: #425967;
+}
+
+.log-panel {
+    -fx-background-color: #19242d;
+    -fx-border-color: #425967;
+}
+
+.accusation-block {
+    -fx-background-color: #1f1b16;
+    -fx-border-color: #5f4a31;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px;
+}
+
+.dossier-combo {
+    -fx-background-color: #111a22;
+    -fx-border-color: #405462;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 2px;
+}
+
+.dossier-combo .list-cell {
+    -fx-text-fill: #dbe5ee;
+    -fx-background-color: #111820;
+}
+
+.dossier-combo .arrow-button {
+    -fx-background-color: #1e2a34;
+    -fx-background-radius: 0 6px 6px 0;
+}
+
+.case-button {
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-font-weight: bold;
+    -fx-padding: 11px 15px;
+    -fx-cursor: hand;
+}
+
+.button-primary {
+    -fx-background-color: #2f6f92;
+    -fx-border-color: #4a90b4;
+    -fx-text-fill: #f7fbff;
+}
+
+.button-accent {
+    -fx-background-color: #285244;
+    -fx-border-color: #47836d;
+    -fx-text-fill: #e9fff4;
+}
+
+.button-muted {
+    -fx-background-color: #24313d;
+    -fx-border-color: #3b4f60;
+    -fx-text-fill: #edf4fa;
+}
+
+.button-secondary {
+    -fx-background-color: #382a35;
+    -fx-border-color: #725264;
+    -fx-text-fill: #ffe7f1;
+}
+
+.case-button:hover {
+    -fx-opacity: 0.95;
+}
+
+.interrogation-panel .section-title,
+.timeline-panel .section-title,
+.log-panel .section-title {
+    -fx-font-size: 17px;
+}
+
+.interrogation-panel .list-cell,
+.timeline-panel .list-cell {
+    -fx-font-size: 13px;
+}
+
+.log-area .content {
+    -fx-background-color: #0f171f;
+}
+
+.contradiction-note {
+    -fx-background-color: #3a2024;
+    -fx-border-color: #8c5058;
+    -fx-text-fill: #f4c8cf;
+}
