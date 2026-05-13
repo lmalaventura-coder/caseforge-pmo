@@ -1,12 +1,26 @@
 package it.university.caseforge.controller;
 
+import it.university.caseforge.model.CaseSummary;
 import it.university.caseforge.model.EvaluationResult;
+
+import java.nio.file.Path;
+import java.util.List;
 
 public interface CaseController {
 
+    List<CaseSummary> getAvailableCases();
+
     void loadDemoCase();
 
+    void loadCase(String caseId);
+
     void resetDemoInvestigation();
+
+    void resetCurrentInvestigation();
+
+    void saveInvestigation(Path path, String selectedSuspectId);
+
+    void loadInvestigation(Path path);
 
     void discoverEvidence(String evidenceId);
 

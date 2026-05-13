@@ -32,6 +32,34 @@ class CaseFactoryTest {
     }
 
     @Test
+    void factoryCreatesThePrototypeTheftCaseWithRequiredCoreData() {
+        CaseFile caseFile = new DemoCaseFactory().createCase(DemoCaseFactory.PROTOTYPE_THEFT_CASE_ID);
+
+        assertEquals("Il furto del prototipo", caseFile.getTitle());
+        assertEquals(3, caseFile.getSuspects().size());
+        assertEquals(5, caseFile.getEvidences().size());
+        assertTrue(caseFile.getTimeline().getEvents().size() >= 4);
+        assertTrue(caseFile.getInterrogations().size() >= 2);
+        assertTrue(caseFile.getSolution().isPresent());
+    }
+
+    @Test
+    void prototypeTheftCaseContainsADetectableContradiction() {
+        CaseFile caseFile = new DemoCaseFactory().createCase(DemoCaseFactory.PROTOTYPE_THEFT_CASE_ID);
+        Question contradictionQuestion = caseFile.findSuspectById("sus-nadia-ferri")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0)
+                .findQuestionById("q-nadia-return-lab")
+                .orElseThrow();
+
+        assertEquals("ev-prototype-badge-log", contradictionQuestion.getAnswer()
+                .getContradictionEvidence()
+                .orElseThrow()
+                .getId());
+    }
+
+    @Test
     void demoCaseIncludesACredibleInnocentSuspectWithTimelineSupport() {
         CaseFile caseFile = new DemoCaseFactory().createDemoCase();
         Suspect davide = caseFile.findSuspectById("sus-davide-serra").orElseThrow();

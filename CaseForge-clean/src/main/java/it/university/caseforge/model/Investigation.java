@@ -93,6 +93,16 @@ public class Investigation {
         return lastEvaluationResult;
     }
 
+    public void restoreState(
+            InvestigationStatus status,
+            Accusation lastAccusation,
+            EvaluationResult lastEvaluationResult
+    ) {
+        this.status = Objects.requireNonNull(status);
+        this.lastAccusation = lastAccusation;
+        this.lastEvaluationResult = lastEvaluationResult;
+    }
+
     public void askQuestion(
             String suspectId,
             String interrogationId,

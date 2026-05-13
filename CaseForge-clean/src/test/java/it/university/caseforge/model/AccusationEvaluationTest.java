@@ -57,6 +57,43 @@ class AccusationEvaluationTest {
     }
 
     @Test
+    void correctAccusationSolvesThePrototypeTheftCase() {
+        Investigation investigation = new Investigation(
+                new DemoCaseFactory().createCase(DemoCaseFactory.PROTOTYPE_THEFT_CASE_ID)
+        );
+        investigation.discoverEvidence("ev-prototype-badge-log");
+        investigation.askQuestion(
+                "sus-nadia-ferri",
+                "int-nadia-001",
+                "q-nadia-return-lab"
+        );
+        investigation.linkEvidenceToAnswer(
+                "ev-prototype-badge-log",
+                "sus-nadia-ferri",
+                "int-nadia-001",
+                "q-nadia-return-lab"
+        );
+
+        EvaluationResult result = investigation.formulateAccusation(
+                new Accusation(
+                        "sus-nadia-ferri",
+                        "ev-prototype-badge-log",
+                        Contradiction.idFor(
+                                "sus-nadia-ferri",
+                                "q-nadia-return-lab",
+                                "ev-prototype-badge-log"
+                        ),
+                        "tl-prototype-badge-entry",
+                        "Badge, risposta e cronologia convergono."
+                ),
+                new DeductionEngine(new StrictAccusationEvaluationStrategy())
+        );
+
+        assertTrue(result.isSolved());
+        assertEquals(100, result.getScore());
+    }
+
+    @Test
     void wrongSuspectDoesNotSolveCase() {
         Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
         investigation.discoverEvidence("ev-server-log");

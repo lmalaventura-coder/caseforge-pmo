@@ -99,6 +99,10 @@
     -fx-padding: 4px 0 4px 0;
 }
 
+.case-selector {
+    -fx-padding: 2px 0 0 0;
+}
+
 .selection-chip {
     -fx-background-color: #1a252f;
     -fx-border-color: #314352;

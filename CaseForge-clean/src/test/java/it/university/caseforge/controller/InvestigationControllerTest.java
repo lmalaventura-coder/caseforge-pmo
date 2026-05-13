@@ -24,6 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class InvestigationControllerTest {
 
     @Test
+    void controllerExposesMultipleAvailableCasesForTheView() {
+        RecordingCaseView view = new RecordingCaseView();
+        InvestigationController controller = createController(view);
+
+        assertEquals(2, controller.getAvailableCases().size());
+        assertEquals(DemoCaseFactory.HELIX_NOVA_CASE_ID, controller.getAvailableCases().get(0).id());
+        assertEquals(DemoCaseFactory.PROTOTYPE_THEFT_CASE_ID, controller.getAvailableCases().get(1).id());
+    }
+
+    @Test
     void discoverEvidenceRefreshesTheDisplayedCase() {
         RecordingCaseView view = new RecordingCaseView();
         InvestigationController controller = createController(view);
@@ -34,6 +44,41 @@ class InvestigationControllerTest {
         assertEquals(2, view.showCaseCalls);
         assertNotNull(view.lastCaseFile);
         assertTrue(view.lastCaseFile.findEvidenceById("ev-fingerprint").orElseThrow().isDiscovered());
+    }
+
+    @Test
+    void loadingSelectedCaseReplacesTheInvestigationWithACleanCase() {
+        RecordingCaseView view = new RecordingCaseView();
+        InvestigationController controller = createController(view);
+        controller.loadDemoCase();
+        controller.discoverEvidence("ev-server-log");
+
+        controller.loadCase(DemoCaseFactory.PROTOTYPE_THEFT_CASE_ID);
+
+        assertEquals(DemoCaseFactory.PROTOTYPE_THEFT_CASE_ID, view.lastCaseFile.getId());
+        assertEquals(1, view.resetCalls);
+        assertTrue(view.lastCaseFile.getEvidences().stream().noneMatch(evidence -> evidence.isDiscovered()));
+        assertEquals(3, view.lastCaseFile.getSuspects().size());
+    }
+
+    @Test
+    void resetCurrentInvestigationKeepsTheCurrentlySelectedCase() {
+        RecordingCaseView view = new RecordingCaseView();
+        InvestigationController controller = createController(view);
+        controller.loadCase(DemoCaseFactory.PROTOTYPE_THEFT_CASE_ID);
+        controller.discoverEvidence("ev-prototype-badge-log");
+
+        controller.resetCurrentInvestigation();
+
+        assertEquals(DemoCaseFactory.PROTOTYPE_THEFT_CASE_ID, view.lastCaseFile.getId());
+        assertFalse(view.lastCaseFile.findEvidenceById("ev-prototype-badge-log").orElseThrow().isDiscovered());
+        assertFalse(view.lastCaseFile.findSuspectById("sus-nadia-ferri")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0)
+                .findQuestionById("q-nadia-return-lab")
+                .orElseThrow()
+                .isAnswerObtained());
     }
 
     @Test
@@ -212,6 +257,11 @@ class InvestigationControllerTest {
         public void showCase(CaseFile caseFile) {
             showCaseCalls++;
             lastCaseFile = caseFile;
+        }
+
+        @Override
+        public void showLoadedInvestigation(CaseFile caseFile, String selectedSuspectId) {
+            showCase(caseFile);
         }
 
         @Override

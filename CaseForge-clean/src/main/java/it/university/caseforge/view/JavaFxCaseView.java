@@ -3,6 +3,7 @@ package it.university.caseforge.view;
 import it.university.caseforge.controller.CaseController;
 import it.university.caseforge.model.Answer;
 import it.university.caseforge.model.CaseFile;
+import it.university.caseforge.model.CaseSummary;
 import it.university.caseforge.model.Contradiction;
 import it.university.caseforge.model.EvaluationResult;
 import it.university.caseforge.model.Evidence;
@@ -15,7 +16,9 @@ import it.university.caseforge.observer.InvestigationEventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -26,7 +29,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +50,7 @@ public class JavaFxCaseView implements CaseView {
     private final Label selectedSuspectLabel = new Label("Sospetto selezionato: nessuno");
     private final Label selectedEvidenceLabel = new Label("Prova selezionata: nessuna");
 
+    private final ComboBox<CaseSelectionItem> caseComboBox = new ComboBox<>();
     private final ListView<SuspectItem> suspectList = new ListView<>();
     private final ListView<EvidenceItem> evidenceList = new ListView<>();
     private final ListView<QuestionPromptItem> questionList = new ListView<>();
@@ -65,6 +72,8 @@ public class JavaFxCaseView implements CaseView {
     private final Button linkEvidenceButton = new Button("Collega prova selezionata alla risposta selezionata");
     private final Button formulateAccusationButton = new Button("Formula accusa");
     private final Button resetInvestigationButton = new Button("Nuova indagine");
+    private final Button saveInvestigationButton = new Button("Salva indagine");
+    private final Button loadInvestigationButton = new Button("Carica indagine");
 
     private CaseController controller;
     private CaseFile currentCaseFile;
@@ -80,6 +89,14 @@ public class JavaFxCaseView implements CaseView {
 
     public void bindController(CaseController controller) {
         this.controller = Objects.requireNonNull(controller);
+        refreshingView = true;
+        try {
+            caseComboBox.getItems().setAll(controller.getAvailableCases().stream()
+                    .map(this::toCaseSelectionItem)
+                    .toList());
+        } finally {
+            refreshingView = false;
+        }
     }
 
     public Parent getRoot() {
@@ -100,6 +117,7 @@ public class JavaFxCaseView implements CaseView {
 
             titleLabel.setText(caseFile.getTitle());
             descriptionLabel.setText(caseFile.getDescription());
+            selectComboItemById(caseComboBox, caseFile.getId());
 
             suspectList.getItems().setAll(caseFile.getSuspects().stream()
                     .map(suspect -> toSuspectItem(caseFile, suspect))
@@ -159,8 +177,26 @@ public class JavaFxCaseView implements CaseView {
 
         showCase(caseFile);
         statusLabel.setText("Nuova indagine avviata.");
-        appendLog("Nuova indagine avviata. Il caso demo e stato ripristinato.");
+        appendLog("Nuova indagine pulita creata per il caso: " + caseFile.getTitle() + ".");
+        appendLog("Lo stato precedente non salvato non viene conservato.");
         appendLog("Seleziona un sospetto, poi esamina prove e cronologia.");
+    }
+
+    @Override
+    public void showLoadedInvestigation(CaseFile caseFile, String selectedSuspectId) {
+        showCase(caseFile);
+        if (selectedSuspectId != null && caseFile.findSuspectById(selectedSuspectId).isPresent()) {
+            refreshingView = true;
+            try {
+                selectById(suspectList, selectedSuspectId);
+                refreshSelectedSuspectPresentation();
+            } finally {
+                refreshingView = false;
+            }
+            appendLog("Sospetto selezionato ripristinato: "
+                    + suspectList.getSelectionModel().getSelectedItem().name() + ".");
+        }
+        statusLabel.setText("Indagine caricata da file.");
     }
 
     @Override
@@ -195,11 +231,24 @@ public class JavaFxCaseView implements CaseView {
                 titleLabel,
                 descriptionLabel,
                 statusLabel,
+                buildCaseSelector(),
                 buildProcedurePanel()
         );
         header.getStyleClass().add("header-panel");
         header.setPadding(new Insets(0, 0, 16, 0));
         return header;
+    }
+
+    private HBox buildCaseSelector() {
+        Label label = new Label("Caso investigativo");
+        label.getStyleClass().add("field-label");
+        caseComboBox.setPromptText("Seleziona caso");
+        caseComboBox.setPrefWidth(360);
+
+        HBox selector = new HBox(10, label, caseComboBox);
+        selector.setAlignment(Pos.CENTER_LEFT);
+        selector.getStyleClass().add("case-selector");
+        return selector;
     }
 
     private VBox buildProcedurePanel() {
@@ -371,17 +420,22 @@ public class JavaFxCaseView implements CaseView {
         primaryContradictionComboBox.setPrefWidth(240);
         relevantTimelineComboBox.setPromptText("Evento della cronologia rilevante");
         relevantTimelineComboBox.setPrefWidth(200);
-        discoverEvidenceButton.setPrefWidth(190);
-        linkEvidenceButton.setPrefWidth(310);
+        discoverEvidenceButton.setPrefWidth(155);
+        discoverEvidenceButton.setWrapText(true);
+        linkEvidenceButton.setPrefWidth(240);
         linkEvidenceButton.setWrapText(true);
-        formulateAccusationButton.setPrefWidth(150);
-        resetInvestigationButton.setPrefWidth(160);
+        formulateAccusationButton.setPrefWidth(125);
+        resetInvestigationButton.setPrefWidth(135);
+        saveInvestigationButton.setPrefWidth(120);
+        loadInvestigationButton.setPrefWidth(120);
 
         HBox investigativeActions = new HBox(12,
                 discoverEvidenceButton,
                 linkEvidenceButton,
                 formulateAccusationButton,
-                resetInvestigationButton
+                resetInvestigationButton,
+                saveInvestigationButton,
+                loadInvestigationButton
         );
         investigativeActions.setAlignment(Pos.CENTER_LEFT);
         investigativeActions.getStyleClass().add("action-strip");
@@ -413,6 +467,33 @@ public class JavaFxCaseView implements CaseView {
     }
 
     private void configureActions() {
+        caseComboBox.valueProperty().addListener((observable, previous, current) -> {
+            if (refreshingView || current == null) {
+                return;
+            }
+            if (currentCaseFile != null && current.id().equals(currentCaseFile.getId())) {
+                return;
+            }
+            if (!confirmCaseChange(current)) {
+                appendLog("Cambio caso annullato. L'indagine corrente resta aperta.");
+                refreshingView = true;
+                try {
+                    caseComboBox.setValue(previous);
+                } finally {
+                    refreshingView = false;
+                }
+                return;
+            }
+
+            appendLog("Cambio caso confermato: " + current.title()
+                    + ". Lo stato non salvato dell'indagine corrente verra perso.");
+            withController(() -> {
+                controller.loadCase(current.id());
+                appendLog("Caso investigativo attivo: " + current.title()
+                        + ". E stata creata una nuova indagine pulita.");
+            });
+        });
+
         suspectList.getSelectionModel().selectedItemProperty().addListener((observable, previous, current) -> {
             refreshSelectedSuspectPresentation();
             if (!refreshingView && current != null) {
@@ -534,7 +615,70 @@ public class JavaFxCaseView implements CaseView {
             );
         }));
 
-        resetInvestigationButton.setOnAction(event -> withController(() -> controller.resetDemoInvestigation()));
+        resetInvestigationButton.setOnAction(event -> withController(() -> controller.resetCurrentInvestigation()));
+
+        saveInvestigationButton.setOnAction(event -> withController(() -> {
+            Optional<Path> savePath = chooseSavePath();
+            if (savePath.isEmpty()) {
+                appendLog("Salvataggio indagine annullato.");
+                return;
+            }
+
+            controller.saveInvestigation(savePath.get(), selectedSuspectId());
+            appendLog("Indagine salvata in: " + savePath.get());
+        }));
+
+        loadInvestigationButton.setOnAction(event -> withController(() -> {
+            Optional<Path> loadPath = chooseLoadPath();
+            if (loadPath.isEmpty()) {
+                appendLog("Caricamento indagine annullato.");
+                return;
+            }
+
+            controller.loadInvestigation(loadPath.get());
+            appendLog("Indagine caricata da: " + loadPath.get());
+        }));
+    }
+
+    private CaseSelectionItem toCaseSelectionItem(CaseSummary caseSummary) {
+        return new CaseSelectionItem(caseSummary.id(), caseSummary.title());
+    }
+
+    private boolean confirmCaseChange(CaseSelectionItem targetCase) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Cambio caso investigativo");
+        alert.setHeaderText("Creare una nuova indagine per \"" + targetCase.title() + "\"?");
+        alert.setContentText(
+                "Lo stato non salvato dell'indagine corrente verra perso. "
+                        + "CaseForge non salva automaticamente le indagini per caso."
+        );
+        return alert.showAndWait()
+                .filter(ButtonType.OK::equals)
+                .isPresent();
+    }
+
+    private Optional<Path> chooseSavePath() {
+        FileChooser fileChooser = investigationFileChooser();
+        fileChooser.setTitle("Salva indagine CaseForge");
+        fileChooser.setInitialFileName("caseforge-indagine.json");
+        File file = fileChooser.showSaveDialog(root.getScene().getWindow());
+        return Optional.ofNullable(file).map(File::toPath);
+    }
+
+    private Optional<Path> chooseLoadPath() {
+        FileChooser fileChooser = investigationFileChooser();
+        fileChooser.setTitle("Carica indagine CaseForge");
+        File file = fileChooser.showOpenDialog(root.getScene().getWindow());
+        return Optional.ofNullable(file).map(File::toPath);
+    }
+
+    private FileChooser investigationFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
+                "Indagini CaseForge (*.json)",
+                "*.json"
+        ));
+        return fileChooser;
     }
 
     private SuspectItem toSuspectItem(CaseFile caseFile, Suspect suspect) {
@@ -1043,6 +1187,7 @@ public class JavaFxCaseView implements CaseView {
         dossierArea.getStyleClass().addAll("detail-area", "dossier-area");
         logArea.getStyleClass().addAll("detail-area", "log-area");
 
+        caseComboBox.getStyleClass().add("dossier-combo");
         answerComboBox.getStyleClass().add("dossier-combo");
         accusedSuspectComboBox.getStyleClass().add("dossier-combo");
         primaryEvidenceComboBox.getStyleClass().add("dossier-combo");
@@ -1054,6 +1199,8 @@ public class JavaFxCaseView implements CaseView {
         linkEvidenceButton.getStyleClass().addAll("case-button", "button-accent");
         formulateAccusationButton.getStyleClass().addAll("case-button", "button-primary");
         resetInvestigationButton.getStyleClass().addAll("case-button", "button-secondary");
+        saveInvestigationButton.getStyleClass().addAll("case-button", "button-muted");
+        loadInvestigationButton.getStyleClass().addAll("case-button", "button-muted");
 
         configureSuspectCells();
         configureEvidenceCells();
@@ -1195,6 +1342,16 @@ public class JavaFxCaseView implements CaseView {
 
     private interface IdentifiedItem {
         String id();
+    }
+
+    private record CaseSelectionItem(
+            String id,
+            String title
+    ) implements IdentifiedItem {
+        @Override
+        public String toString() {
+            return title;
+        }
     }
 
     private record SuspectItem(

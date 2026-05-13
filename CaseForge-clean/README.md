@@ -43,6 +43,17 @@ src/test/java/it/university/caseforge/model/
 - Riduzione dell'affidabilita del sospetto solo dopo il collegamento manuale di una prova scoperta a una risposta effettivamente contraddittoria.
 - Pannello GUI dedicato alle domande e risposte del sospetto selezionato.
 - GUI riorganizzata come flusso investigativo guidato: procedura visibile, dettagli sospetto/prova, cronologia e log eventi affiancati.
+- Supporto a piu casi investigativi selezionabili dalla GUI.
+- Persistence JSON manuale: i pulsanti `Salva indagine` e `Carica indagine` permettono di salvare o ripristinare una sessione investigativa senza salvataggio automatico.
+
+## Salvataggio e caricamento
+
+La GUI contiene i pulsanti `Salva indagine` e `Carica indagine` nella barra delle azioni.
+
+- `Salva indagine`: crea un file JSON con caso selezionato, prove scoperte, domande poste, risposte ottenute, collegamenti prova-risposta, contraddizioni, stato dell'indagine ed eventuale accusa finale.
+- `Carica indagine`: legge un file JSON salvato e ricostruisce una nuova indagine coerente nella GUI.
+- Il cambio caso non salva automaticamente lo stato corrente: usa `Salva indagine` prima di cambiare caso se vuoi conservarlo.
+- Se il file non e valido, l'errore viene mostrato nel log eventi senza chiudere l'applicazione.
 
 ## Comandi Windows
 

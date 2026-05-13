@@ -3,6 +3,7 @@ package it.university.caseforge.factory;
 import it.university.caseforge.model.Answer;
 import it.university.caseforge.model.CaseFile;
 import it.university.caseforge.model.CaseSolution;
+import it.university.caseforge.model.CaseSummary;
 import it.university.caseforge.model.Contradiction;
 import it.university.caseforge.model.DigitalEvidence;
 import it.university.caseforge.model.Interrogation;
@@ -15,8 +16,12 @@ import it.university.caseforge.model.TestimonyEvidence;
 import it.university.caseforge.model.TimelineEvent;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class DemoCaseFactory implements CaseFactory {
+
+    public static final String HELIX_NOVA_CASE_ID = "case-001";
+    public static final String PROTOTYPE_THEFT_CASE_ID = "case-002";
 
     private final EvidenceFactory evidenceFactory;
     private final SuspectFactory suspectFactory;
@@ -31,7 +36,28 @@ public class DemoCaseFactory implements CaseFactory {
     }
 
     @Override
+    public List<CaseSummary> availableCases() {
+        return List.of(
+                new CaseSummary(HELIX_NOVA_CASE_ID, "Violazione di mezzanotte in HelixNova"),
+                new CaseSummary(PROTOTYPE_THEFT_CASE_ID, "Il furto del prototipo")
+        );
+    }
+
+    @Override
+    public CaseFile createCase(String caseId) {
+        return switch (caseId) {
+            case HELIX_NOVA_CASE_ID -> createHelixNovaCase();
+            case PROTOTYPE_THEFT_CASE_ID -> createPrototypeTheftCase();
+            default -> throw new IllegalArgumentException("Caso investigativo sconosciuto: " + caseId);
+        };
+    }
+
+    @Override
     public CaseFile createDemoCase() {
+        return createHelixNovaCase();
+    }
+
+    private CaseFile createHelixNovaCase() {
         Suspect marta = suspectFactory.createSuspect(
                 "sus-marta-greco",
                 "Marta Greco",
@@ -133,7 +159,7 @@ public class DemoCaseFactory implements CaseFactory {
         Interrogation sofiaInterrogation = createSofiaInterrogation(sofia);
         Interrogation davideInterrogation = createDavideInterrogation(davide);
 
-        return CaseFile.builder("case-001", "Violazione di mezzanotte in HelixNova")
+        return CaseFile.builder(HELIX_NOVA_CASE_ID, "Violazione di mezzanotte in HelixNova")
                 .description(
                         "Alle 22:36, il fondatore di HelixNova viene trovato privo di sensi nella sala riunioni "
                                 + "direzionale, pochi minuti dopo aver preparato un dossier di audit per gli investitori. "
@@ -223,6 +249,142 @@ public class DemoCaseFactory implements CaseFactory {
                         "tl-server-export",
                         "Marta Greco ha costruito un alibi da lavoro remoto mentre recuperava file sensibili "
                                 + "e affrontava il fondatore per l'audit."
+                ))
+                .build();
+    }
+
+    private CaseFile createPrototypeTheftCase() {
+        Suspect enrico = suspectFactory.createSuspect(
+                "sus-enrico-bassi",
+                "Enrico Bassi",
+                "Ricercatore rivale del dipartimento di robotica, escluso dalla dimostrazione privata.",
+                "Un risultato fallito nel suo laboratorio lo rendeva interessato a recuperare specifiche del prototipo.",
+                "Sostiene di essere rimasto in biblioteca dopo la demo."
+        );
+
+        Suspect nadia = suspectFactory.createSuspect(
+                "sus-nadia-ferri",
+                "Nadia Ferri",
+                "Stagista del laboratorio, incaricata di preparare il prototipo e chiudere il locker tecnico.",
+                "Temeva di perdere la borsa di studio e aveva ricevuto pressioni da un acceleratore concorrente.",
+                "Dichiara di essere uscita dal campus alle 18:30 senza rientrare in laboratorio."
+        );
+
+        Suspect marco = suspectFactory.createSuspect(
+                "sus-marco-valenti",
+                "Marco Valenti",
+                "Responsabile sicurezza del polo universitario e custode dei registri di accesso.",
+                "Un errore di vigilanza avrebbe potuto costargli il rinnovo del contratto.",
+                "Dice di aver seguito il giro serale senza entrare nel laboratorio prototipi."
+        );
+
+        DigitalEvidence badgeLog = evidenceFactory.createDigitalEvidence(
+                "ev-prototype-badge-log",
+                "Badge ingresso laboratorio",
+                "Il badge assegnato a Nadia viene registrato all'ingresso del laboratorio alle 19:42.",
+                "Sistema accessi universitario",
+                "SHA-256:prototype-badge-1942"
+        );
+
+        DigitalEvidence printerLog = evidenceFactory.createDigitalEvidence(
+                "ev-prototype-printer-log",
+                "Log stampante 3D",
+                "La stampante 3D del banco prototipi avvia una stampa di supporto alle 19:51.",
+                "Console laboratorio maker",
+                "SHA-256:printer-support-1951"
+        );
+
+        DigitalEvidence deletedEmail = evidenceFactory.createDigitalEvidence(
+                "ev-prototype-deleted-email",
+                "Email cancellata sulle specifiche",
+                "Un messaggio eliminato chiede a Enrico dettagli sulle tolleranze del prototipo mostrato in demo.",
+                "Backup posta dipartimentale",
+                "SHA-256:deleted-prototype-mail"
+        );
+
+        PhysicalEvidence lockerFingerprint = evidenceFactory.createPhysicalEvidence(
+                "ev-prototype-locker-fingerprint",
+                "Impronta sul locker tecnico",
+                "Una impronta parziale compatibile con Nadia e rilevata sul locker dove era custodito il prototipo.",
+                "Locker 4B del laboratorio",
+                "Impronta latente"
+        );
+
+        TestimonyEvidence porterStatement = evidenceFactory.createTestimonyEvidence(
+                "ev-prototype-porter-statement",
+                "Testimonianza del portiere",
+                "Il portiere ricorda una persona con felpa del laboratorio uscire verso il cortile poco prima delle 20:00.",
+                "Portineria del polo tecnologico",
+                "La persona teneva uno zaino rigido e sembrava conoscere bene l'edificio."
+        );
+
+        Interrogation enricoInterrogation = createEnricoInterrogation(enrico);
+        Interrogation nadiaInterrogation = createNadiaInterrogation(nadia, badgeLog, lockerFingerprint);
+        Interrogation marcoInterrogation = createMarcoInterrogation(marco);
+
+        return CaseFile.builder(PROTOTYPE_THEFT_CASE_ID, "Il furto del prototipo")
+                .description(
+                        "Dopo una dimostrazione privata in un laboratorio universitario, un prototipo di sensore "
+                                + "per robotica sparisce dal locker tecnico. Le tracce indicano accessi serali, "
+                                + "una falsa pista accademica e un alibi da verificare."
+                )
+                .addSuspect(enrico)
+                .addSuspect(nadia)
+                .addSuspect(marco)
+                .addEvidence(badgeLog)
+                .addEvidence(printerLog)
+                .addEvidence(deletedEmail)
+                .addEvidence(lockerFingerprint)
+                .addEvidence(porterStatement)
+                .addInterrogation(enricoInterrogation)
+                .addInterrogation(nadiaInterrogation)
+                .addInterrogation(marcoInterrogation)
+                .addTimelineEvent(new TimelineEvent(
+                        "tl-prototype-demo",
+                        LocalDateTime.of(2026, 4, 18, 17, 30),
+                        "Dimostrazione privata conclusa",
+                        "Il prototipo viene riposto nel locker tecnico dopo la presentazione agli investitori.",
+                        null
+                ))
+                .addTimelineEvent(new TimelineEvent(
+                        "tl-prototype-email",
+                        LocalDateTime.of(2026, 4, 18, 18, 12),
+                        "Email sospetta eliminata",
+                        "Una email sulle specifiche viene cancellata dalla casella dipartimentale.",
+                        "sus-enrico-bassi"
+                ))
+                .addTimelineEvent(new TimelineEvent(
+                        "tl-prototype-badge-entry",
+                        LocalDateTime.of(2026, 4, 18, 19, 42),
+                        "Badge al laboratorio",
+                        "Il badge di Nadia apre il laboratorio dopo l'orario dichiarato.",
+                        "sus-nadia-ferri"
+                ))
+                .addTimelineEvent(new TimelineEvent(
+                        "tl-prototype-printer",
+                        LocalDateTime.of(2026, 4, 18, 19, 51),
+                        "Stampante 3D attivata",
+                        "La stampante del banco prototipi avvia un job compatibile con un supporto di trasporto.",
+                        "sus-nadia-ferri"
+                ))
+                .addTimelineEvent(new TimelineEvent(
+                        "tl-prototype-missing",
+                        LocalDateTime.of(2026, 4, 18, 20, 10),
+                        "Prototipo mancante",
+                        "Il responsabile della demo trova il locker vuoto durante il controllo serale.",
+                        null
+                ))
+                .solution(new CaseSolution(
+                        "sus-nadia-ferri",
+                        "ev-prototype-badge-log",
+                        Contradiction.idFor(
+                                "sus-nadia-ferri",
+                                "q-nadia-return-lab",
+                                "ev-prototype-badge-log"
+                        ),
+                        "tl-prototype-badge-entry",
+                        "Nadia ha dichiarato di non essere rientrata, ma il suo badge apre il laboratorio "
+                                + "poco prima dell'attivazione della stampante e della sparizione del prototipo."
                 ))
                 .build();
     }
@@ -414,6 +576,126 @@ public class DemoCaseFactory implements CaseFactory {
         interrogation.addQuestion(investorCall);
         interrogation.addQuestion(returnOffice);
         interrogation.addQuestion(motive);
+        return interrogation;
+    }
+
+    private Interrogation createEnricoInterrogation(Suspect enrico) {
+        Interrogation interrogation = new Interrogation(
+                "int-enrico-001",
+                enrico,
+                LocalDateTime.of(2026, 4, 19, 9, 20)
+        );
+
+        Question demoAccess = new Question(
+                "q-enrico-demo-access",
+                "Ha provato a ottenere accesso alla dimostrazione privata?",
+                QuestionCategory.ACCESS
+        );
+        demoAccess.answerWith(new Answer(
+                "ans-enrico-demo-access",
+                "Ho chiesto di assistere, ma mi e stato negato. Non sono entrato nel laboratorio.",
+                ReliabilityLevel.MEDIUM
+        ));
+
+        Question deletedMail = new Question(
+                "q-enrico-deleted-mail",
+                "Perche compare una email cancellata sulle specifiche del prototipo?",
+                QuestionCategory.MOTIVE
+        );
+        deletedMail.answerWith(new Answer(
+                "ans-enrico-deleted-mail",
+                "Era una richiesta accademica vecchia. L'ho eliminata per non alimentare sospetti inutili.",
+                ReliabilityLevel.LOW
+        ));
+
+        interrogation.addQuestion(demoAccess);
+        interrogation.addQuestion(deletedMail);
+        return interrogation;
+    }
+
+    private Interrogation createNadiaInterrogation(
+            Suspect nadia,
+            DigitalEvidence badgeLog,
+            PhysicalEvidence lockerFingerprint
+    ) {
+        Interrogation interrogation = new Interrogation(
+                "int-nadia-001",
+                nadia,
+                LocalDateTime.of(2026, 4, 19, 10, 0)
+        );
+
+        Question returnLab = new Question(
+                "q-nadia-return-lab",
+                "E rientrata nel laboratorio dopo le 18:30?",
+                QuestionCategory.TIMELINE
+        );
+        returnLab.answerWith(new Answer(
+                "ans-nadia-return-lab",
+                "No. Ho lasciato il campus dopo aver pulito il banco e non sono piu rientrata.",
+                ReliabilityLevel.HIGH,
+                badgeLog
+        ));
+
+        Question locker = new Question(
+                "q-nadia-locker",
+                "Ha toccato il locker tecnico dopo la dimostrazione?",
+                QuestionCategory.ACCESS
+        );
+        locker.answerWith(new Answer(
+                "ans-nadia-locker",
+                "Solo durante la chiusura ufficiale, mai dopo l'orario di uscita.",
+                ReliabilityLevel.MEDIUM,
+                lockerFingerprint
+        ));
+
+        Question motive = new Question(
+                "q-nadia-scholarship",
+                "La pressione sulla borsa di studio poteva spingerla a vendere il prototipo?",
+                QuestionCategory.MOTIVE
+        );
+        motive.answerWith(new Answer(
+                "ans-nadia-scholarship",
+                "Ero sotto pressione, ma perdere il posto sarebbe stato peggio di qualsiasi offerta esterna.",
+                ReliabilityLevel.MEDIUM
+        ));
+
+        interrogation.addQuestion(returnLab);
+        interrogation.addQuestion(locker);
+        interrogation.addQuestion(motive);
+        return interrogation;
+    }
+
+    private Interrogation createMarcoInterrogation(Suspect marco) {
+        Interrogation interrogation = new Interrogation(
+                "int-marco-001",
+                marco,
+                LocalDateTime.of(2026, 4, 19, 10, 40)
+        );
+
+        Question patrol = new Question(
+                "q-marco-patrol",
+                "Ha controllato personalmente il laboratorio durante il giro serale?",
+                QuestionCategory.TIMELINE
+        );
+        patrol.answerWith(new Answer(
+                "ans-marco-patrol",
+                "Sono passato nel corridoio, ma non sono entrato: la porta risultava chiusa.",
+                ReliabilityLevel.MEDIUM
+        ));
+
+        Question badgeReview = new Question(
+                "q-marco-badge-review",
+                "Ha verificato subito i badge dopo la segnalazione del furto?",
+                QuestionCategory.ACCESS
+        );
+        badgeReview.answerWith(new Answer(
+                "ans-marco-badge-review",
+                "No. Ho consegnato il log la mattina dopo, appena richiesto dalla direzione.",
+                ReliabilityLevel.MEDIUM
+        ));
+
+        interrogation.addQuestion(patrol);
+        interrogation.addQuestion(badgeReview);
         return interrogation;
     }
 
