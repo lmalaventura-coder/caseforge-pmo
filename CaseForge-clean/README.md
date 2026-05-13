@@ -38,6 +38,8 @@ src/test/java/it/university/caseforge/model/
 - Notifica eventi per prova scoperta, collegamento e chiusura caso.
 - Scheletri MVC per controller e view JavaFX.
 - Sistema di interrogatori con domande categorizzate, risposte affidabili e contraddizioni rilevate quando una prova scoperta smentisce una risposta.
+- Interrogatori interattivi: l'investigatore sceglie una domanda, ottiene la risposta e solo allora puo usarla per collegare prove.
+- Dossier investigativo aggiornato dinamicamente con prove scoperte, risposte raccolte, contraddizioni ed eventi della cronologia.
 - Riduzione dell'affidabilita del sospetto solo dopo il collegamento manuale di una prova scoperta a una risposta effettivamente contraddittoria.
 - Pannello GUI dedicato alle domande e risposte del sospetto selezionato.
 - GUI riorganizzata come flusso investigativo guidato: procedura visibile, dettagli sospetto/prova, cronologia e log eventi affiancati.

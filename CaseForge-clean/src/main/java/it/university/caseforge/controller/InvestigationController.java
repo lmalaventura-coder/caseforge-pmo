@@ -70,6 +70,17 @@ public class InvestigationController implements CaseController {
     }
 
     @Override
+    public void askQuestion(
+            String suspectId,
+            String interrogationId,
+            String questionId
+    ) {
+        Investigation currentInvestigation = currentInvestigation();
+        currentInvestigation.askQuestion(suspectId, interrogationId, questionId);
+        caseView.showCase(currentInvestigation.getCaseFile());
+    }
+
+    @Override
     public void linkEvidenceToSuspect(String evidenceId, String suspectId) {
         Investigation currentInvestigation = currentInvestigation();
         currentInvestigation.linkEvidenceToSuspect(evidenceId, suspectId);

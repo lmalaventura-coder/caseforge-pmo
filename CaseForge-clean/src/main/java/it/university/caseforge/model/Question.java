@@ -8,6 +8,7 @@ public class Question {
     private final String text;
     private final QuestionCategory category;
     private Answer answer;
+    private boolean answerObtained;
 
     public Question(String text) {
         this(defaultId(text), text, QuestionCategory.GENERAL);
@@ -47,6 +48,21 @@ public class Question {
 
     public void answerWith(Answer answer) {
         this.answer = Objects.requireNonNull(answer);
+    }
+
+    public boolean isAnswerObtained() {
+        return answerObtained;
+    }
+
+    public boolean revealAnswer() {
+        if (answer == null) {
+            throw new IllegalStateException("La domanda non ha una risposta configurata.");
+        }
+        if (answerObtained) {
+            return false;
+        }
+        answerObtained = true;
+        return true;
     }
 
     private static String defaultId(String text) {

@@ -35,7 +35,8 @@ public class StrictAccusationEvaluationStrategy implements AccusationEvaluationS
                 correctSuspect,
                 correctPrimaryEvidence,
                 correctPrimaryContradiction,
-                correctTimelineEvent
+                correctTimelineEvent,
+                solution
         );
 
         return new EvaluationResult(
@@ -112,25 +113,28 @@ public class StrictAccusationEvaluationStrategy implements AccusationEvaluationS
             boolean correctSuspect,
             boolean correctPrimaryEvidence,
             boolean correctPrimaryContradiction,
-            boolean correctTimelineEvent
+            boolean correctTimelineEvent,
+            CaseSolution solution
     ) {
         if (solved) {
-            return "Accusa accolta. Sospetto, prova, contraddizione ed evento della cronologia risultano coerenti.";
+            return "Accusa accolta. Ricostruzione del caso: " + solution.getExplanation();
         }
 
         List<String> missingElements = new ArrayList<>();
         if (!correctSuspect) {
-            missingElements.add("sospetto");
+            missingElements.add("una ricostruzione credibile del responsabile");
         }
         if (!correctPrimaryEvidence) {
-            missingElements.add("prova principale");
+            missingElements.add("una prova principale gia emersa e coerente");
         }
         if (!correctPrimaryContradiction) {
-            missingElements.add("contraddizione confermata");
+            missingElements.add("una contraddizione confermata");
         }
         if (!correctTimelineEvent) {
-            missingElements.add("evento della cronologia");
+            missingElements.add("un evento della cronologia davvero rilevante");
         }
-        return "Accusa respinta o incompleta: " + String.join(", ", missingElements) + ".";
+        return "Accusa respinta o incompleta. Nel dossier mancano: "
+                + String.join(", ", missingElements)
+                + ".";
     }
 }

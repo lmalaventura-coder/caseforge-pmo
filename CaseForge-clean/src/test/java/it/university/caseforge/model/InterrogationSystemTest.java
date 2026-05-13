@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InterrogationSystemTest {
@@ -59,6 +61,11 @@ class InterrogationSystemTest {
         Suspect marta = investigation.getCaseFile().findSuspectById("sus-marta-greco").orElseThrow();
 
         investigation.discoverEvidence("ev-server-log");
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
         investigation.linkEvidenceToAnswer(
                 "ev-server-log",
                 "sus-marta-greco",
@@ -76,6 +83,11 @@ class InterrogationSystemTest {
         Suspect marta = investigation.getCaseFile().findSuspectById("sus-marta-greco").orElseThrow();
 
         investigation.discoverEvidence("ev-server-log");
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
         investigation.linkEvidenceToAnswer(
                 "ev-server-log",
                 "sus-marta-greco",
@@ -100,6 +112,11 @@ class InterrogationSystemTest {
         investigation.addObserver(events::add);
 
         investigation.discoverEvidence("ev-server-log");
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
         investigation.linkEvidenceToAnswer(
                 "ev-server-log",
                 "sus-marta-greco",
@@ -128,6 +145,11 @@ class InterrogationSystemTest {
         Suspect sofia = investigation.getCaseFile().findSuspectById("sus-sofia-rinaldi").orElseThrow();
 
         investigation.discoverEvidence("ev-chat-message");
+        investigation.askQuestion(
+                "sus-sofia-rinaldi",
+                "int-sofia-001",
+                "q-sofia-release-bridge"
+        );
         investigation.linkEvidenceToAnswer(
                 "ev-chat-message",
                 "sus-sofia-rinaldi",
@@ -145,6 +167,11 @@ class InterrogationSystemTest {
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
         investigation.discoverEvidence("ev-chat-message");
+        investigation.askQuestion(
+                "sus-sofia-rinaldi",
+                "int-sofia-001",
+                "q-sofia-release-bridge"
+        );
 
         investigation.linkEvidenceToAnswer(
                 "ev-chat-message",
@@ -168,5 +195,146 @@ class InterrogationSystemTest {
 
         assertEquals(1, linkedEvents);
         assertEquals(1, noContradictionEvents);
+    }
+
+    @Test
+    void askingQuestionStoresTheObtainedAnswerAndNotifiesObservers() {
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        List<InvestigationEvent> events = new ArrayList<>();
+        investigation.addObserver(events::add);
+
+        Question question = investigation.getCaseFile()
+                .findSuspectById("sus-marta-greco")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0)
+                .findQuestionById("q-marta-server-access")
+                .orElseThrow();
+
+        assertFalse(question.isAnswerObtained());
+
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
+
+        assertTrue(question.isAnswerObtained());
+        assertTrue(events.stream()
+                .anyMatch(event -> event.getType() == InvestigationEventType.ANSWER_OBTAINED));
+    }
+
+    @Test
+    void askingAChosenQuestionRevealsOnlyThatAnswer() {
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Interrogation interrogation = investigation.getCaseFile()
+                .findSuspectById("sus-marta-greco")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0);
+        Question chosenQuestion = interrogation.findQuestionById("q-marta-audit-worry").orElseThrow();
+        Question untouchedQuestion = interrogation.findQuestionById("q-marta-server-access").orElseThrow();
+
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-audit-worry"
+        );
+
+        assertTrue(chosenQuestion.isAnswerObtained());
+        assertFalse(untouchedQuestion.isAnswerObtained());
+    }
+
+    @Test
+    void sameSuspectCanAnswerMultipleExplicitQuestions() {
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Interrogation interrogation = investigation.getCaseFile()
+                .findSuspectById("sus-marta-greco")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0);
+
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-audit-worry"
+        );
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-meeting-room"
+        );
+
+        long obtainedAnswers = interrogation.getQuestions().stream()
+                .filter(Question::isAnswerObtained)
+                .count();
+
+        assertEquals(2, obtainedAnswers);
+    }
+
+    @Test
+    void obtainedAnswerRemainsAvailableForTheInterrogationDossier() {
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Question question = investigation.getCaseFile()
+                .findSuspectById("sus-sofia-rinaldi")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0)
+                .findQuestionById("q-sofia-release-bridge")
+                .orElseThrow();
+
+        investigation.askQuestion(
+                "sus-sofia-rinaldi",
+                "int-sofia-001",
+                "q-sofia-release-bridge"
+        );
+
+        assertTrue(question.isAnswerObtained());
+        assertEquals(
+                "Si. Coordinavo i passaggi di rollback in chat e nella chiamata dell'incidente.",
+                question.getAnswer().getText()
+        );
+    }
+
+    @Test
+    void askingTheSameQuestionTwiceDoesNotDuplicateAnswerEvents() {
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        List<InvestigationEvent> events = new ArrayList<>();
+        investigation.addObserver(events::add);
+
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-audit-worry"
+        );
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-audit-worry"
+        );
+
+        long answerEvents = events.stream()
+                .filter(event -> event.getType() == InvestigationEventType.ANSWER_OBTAINED)
+                .count();
+
+        assertEquals(1, answerEvents);
+    }
+
+    @Test
+    void evidenceCannotBeLinkedBeforeAnswerIsObtained() {
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        investigation.discoverEvidence("ev-server-log");
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> investigation.linkEvidenceToAnswer(
+                        "ev-server-log",
+                        "sus-marta-greco",
+                        "int-marta-001",
+                        "q-marta-server-access"
+                )
+        );
+
+        assertTrue(exception.getMessage().contains("ottenere la risposta"));
     }
 }

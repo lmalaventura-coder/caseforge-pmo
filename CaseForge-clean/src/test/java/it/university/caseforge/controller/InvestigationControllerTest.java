@@ -42,6 +42,11 @@ class InvestigationControllerTest {
         InvestigationController controller = createController(view);
         controller.loadDemoCase();
         controller.discoverEvidence("ev-server-log");
+        controller.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
         controller.linkEvidenceToAnswer(
                 "ev-server-log",
                 "sus-marta-greco",
@@ -72,6 +77,11 @@ class InvestigationControllerTest {
         InvestigationController controller = createController(view);
         controller.loadDemoCase();
         controller.discoverEvidence("ev-server-log");
+        controller.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
 
         controller.linkEvidenceToAnswer(
                 "ev-server-log",
@@ -80,7 +90,7 @@ class InvestigationControllerTest {
                 "q-marta-server-access"
         );
 
-        assertEquals(3, view.showCaseCalls);
+        assertEquals(4, view.showCaseCalls);
         assertTrue(view.lastCaseFile.findSuspectById("sus-marta-greco")
                 .orElseThrow()
                 .getReliabilityScore() < 100);
@@ -92,6 +102,11 @@ class InvestigationControllerTest {
         InvestigationController controller = createController(view);
         controller.loadDemoCase();
         controller.discoverEvidence("ev-server-log");
+        controller.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
         controller.linkEvidenceToAnswer(
                 "ev-server-log",
                 "sus-marta-greco",
@@ -125,6 +140,13 @@ class InvestigationControllerTest {
                 .get(0)
                 .getContradictions()
                 .size());
+        assertFalse(resetCase.findSuspectById("sus-marta-greco")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0)
+                .findQuestionById("q-marta-server-access")
+                .orElseThrow()
+                .isAnswerObtained());
         assertEquals(8, resetCase.getTimeline().getEvents().size());
         assertNull(view.lastEvaluationResult);
     }
@@ -145,6 +167,28 @@ class InvestigationControllerTest {
                 .count();
         assertEquals(1, discoveryEvents);
         assertTrue(view.lastCaseFile.findEvidenceById("ev-fingerprint").orElseThrow().isDiscovered());
+    }
+
+    @Test
+    void askingQuestionRefreshesTheDisplayedCaseAndRecordsTheAnswer() {
+        RecordingCaseView view = new RecordingCaseView();
+        InvestigationController controller = createController(view);
+        controller.loadDemoCase();
+
+        controller.askQuestion(
+                "sus-sofia-rinaldi",
+                "int-sofia-001",
+                "q-sofia-release-bridge"
+        );
+
+        assertEquals(2, view.showCaseCalls);
+        assertTrue(view.lastCaseFile.findSuspectById("sus-sofia-rinaldi")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0)
+                .findQuestionById("q-sofia-release-bridge")
+                .orElseThrow()
+                .isAnswerObtained());
     }
 
     private InvestigationController createController(RecordingCaseView view) {

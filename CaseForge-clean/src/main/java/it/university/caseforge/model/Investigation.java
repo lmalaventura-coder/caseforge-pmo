@@ -93,6 +93,21 @@ public class Investigation {
         return lastEvaluationResult;
     }
 
+    public void askQuestion(
+            String suspectId,
+            String interrogationId,
+            String questionId
+    ) {
+        requireOpen();
+        Suspect suspect = findSuspect(suspectId);
+        Interrogation interrogation = findInterrogation(suspect, interrogationId);
+        Question question = findQuestion(interrogation, questionId);
+
+        if (question.revealAnswer()) {
+            notifyObservers(InvestigationEvent.answerObtained(question, LocalDateTime.now()));
+        }
+    }
+
     public void linkEvidenceToAnswer(
             String evidenceId,
             String suspectId,
@@ -106,21 +121,21 @@ public class Investigation {
             throw new IllegalStateException("La prova deve essere scoperta prima di collegarla a una risposta.");
         }
 
-        Suspect suspect = caseFile.findSuspectById(suspectId)
-                .orElseThrow(() -> new IllegalArgumentException("Sospetto sconosciuto: " + suspectId));
-        Interrogation interrogation = suspect.getInterrogations().stream()
-                .filter(candidate -> candidate.getId().equals(interrogationId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Interrogatorio sconosciuto: " + interrogationId));
-        Question question = interrogation.findQuestionById(questionId)
-                .orElseThrow(() -> new IllegalArgumentException("Domanda sconosciuta: " + questionId));
+        Suspect suspect = findSuspect(suspectId);
+        Interrogation interrogation = findInterrogation(suspect, interrogationId);
+        Question question = findQuestion(interrogation, questionId);
+        if (!question.isAnswerObtained()) {
+            throw new IllegalStateException(
+                    "Occorre ottenere la risposta prima di collegare una prova a questa domanda."
+            );
+        }
         Answer answer = Objects.requireNonNull(question.getAnswer(), "La domanda non ha una risposta.");
 
         if (!answer.linkEvidence(evidence)) {
             return;
         }
 
-        notifyObservers(InvestigationEvent.evidenceLinkedToAnswer(evidence, LocalDateTime.now()));
+        notifyObservers(InvestigationEvent.evidenceLinkedToAnswer(evidence, question, LocalDateTime.now()));
         contradictionStrategy.evaluate(suspect, question, evidence)
                 .filter(interrogation::addContradiction)
                 .ifPresentOrElse(
@@ -135,9 +150,27 @@ public class Investigation {
                         },
                         () -> notifyObservers(InvestigationEvent.noContradictionDetected(
                                 evidence,
+                                question,
                                 LocalDateTime.now()
                         ))
                 );
+    }
+
+    private Suspect findSuspect(String suspectId) {
+        return caseFile.findSuspectById(suspectId)
+                .orElseThrow(() -> new IllegalArgumentException("Sospetto sconosciuto: " + suspectId));
+    }
+
+    private Interrogation findInterrogation(Suspect suspect, String interrogationId) {
+        return suspect.getInterrogations().stream()
+                .filter(candidate -> candidate.getId().equals(interrogationId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Interrogatorio sconosciuto: " + interrogationId));
+    }
+
+    private Question findQuestion(Interrogation interrogation, String questionId) {
+        return interrogation.findQuestionById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("Domanda sconosciuta: " + questionId));
     }
 
     private void closeCase() {

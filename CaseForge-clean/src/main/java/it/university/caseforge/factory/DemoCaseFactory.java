@@ -15,6 +15,7 @@ import it.university.caseforge.model.TestimonyEvidence;
 import it.university.caseforge.model.TimelineEvent;
 
 import java.time.LocalDateTime;
+
 public class DemoCaseFactory implements CaseFactory {
 
     private final EvidenceFactory evidenceFactory;
@@ -59,7 +60,7 @@ public class DemoCaseFactory implements CaseFactory {
                 "sus-davide-serra",
                 "Davide Serra",
                 "Responsabile partnership impegnato in una trattativa decisiva che la vittima era pronta a respingere.",
-                "Il rifiuto della vittima gli avrebbe fatto perdere un bonus e avrebbe indebolito la sua posizione.",
+                "Il rifiuto della vittima gli avrebbe fatto perdere un bonus e avrebbe indebolito la sua posizione: e una pista forte, ma non conclusiva.",
                 "Sostiene di aver incontrato un partner in centro e di non essere mai rientrato in sede."
         );
 
@@ -74,7 +75,7 @@ public class DemoCaseFactory implements CaseFactory {
         DigitalEvidence badgeAccessLog = evidenceFactory.createDigitalEvidence(
                 "ev-badge-log",
                 "Registro accessi badge",
-                "Il lettore badge dell'ingresso posteriore registra Marta al piano direzionale alle 22:11.",
+                "Il lettore badge dell'ingresso posteriore registra il badge assegnato a Marta al piano direzionale alle 22:11; il log non prova da solo chi lo stesse usando.",
                 "Controller accessi dell'edificio",
                 "SHA-256:badge-entry-2211"
         );
@@ -98,7 +99,7 @@ public class DemoCaseFactory implements CaseFactory {
         DigitalEvidence phoneCall = evidenceFactory.createDigitalEvidence(
                 "ev-call-record",
                 "Registro telefonata",
-                "Davide ha effettuato una chiamata di tredici minuti a un contatto degli investitori durante la finestra critica.",
+                "Davide ha effettuato una chiamata di tredici minuti a un contatto degli investitori durante la finestra critica, dettaglio sospetto ma compatibile con la trattativa in corso.",
                 "Estratto metadati dell'operatore",
                 "SHA-256:call-davide-investor"
         );
@@ -130,6 +131,7 @@ public class DemoCaseFactory implements CaseFactory {
         Interrogation martaInterrogation = createMartaInterrogation(marta, serverLog, fingerprint);
         Interrogation lucaInterrogation = createLucaInterrogation(luca);
         Interrogation sofiaInterrogation = createSofiaInterrogation(sofia);
+        Interrogation davideInterrogation = createDavideInterrogation(davide);
 
         return CaseFile.builder("case-001", "Violazione di mezzanotte in HelixNova")
                 .description(
@@ -153,6 +155,7 @@ public class DemoCaseFactory implements CaseFactory {
                 .addInterrogation(martaInterrogation)
                 .addInterrogation(lucaInterrogation)
                 .addInterrogation(sofiaInterrogation)
+                .addInterrogation(davideInterrogation)
                 .addTimelineEvent(new TimelineEvent(
                         "tl-audit-mail",
                         LocalDateTime.of(2026, 3, 4, 18, 12),
@@ -305,8 +308,20 @@ public class DemoCaseFactory implements CaseFactory {
                 ReliabilityLevel.MEDIUM
         ));
 
+        Question prototypes = new Question(
+                "q-luca-prototype-archive",
+                "Quali prototipi e venuto a recuperare quella sera?",
+                QuestionCategory.GENERAL
+        );
+        prototypes.answerWith(new Answer(
+                "ans-luca-prototype-archive",
+                "Vecchi deck e mockup del prodotto. Non avevo interesse per i file finanziari.",
+                ReliabilityLevel.MEDIUM
+        ));
+
         interrogation.addQuestion(emailReaction);
         interrogation.addQuestion(access);
+        interrogation.addQuestion(prototypes);
         return interrogation;
     }
 
@@ -339,7 +354,65 @@ public class DemoCaseFactory implements CaseFactory {
                 ReliabilityLevel.MEDIUM
         ));
 
+        Question serverAccess = new Question(
+                "q-sofia-server-access",
+                "Ha usato credenziali privilegiate sui server finanziari durante il rollback?",
+                QuestionCategory.ACCESS
+        );
+        serverAccess.answerWith(new Answer(
+                "ans-sofia-server-access",
+                "No. I miei accessi erano limitati alla piattaforma di rilascio, non ai dati finanziari.",
+                ReliabilityLevel.HIGH
+        ));
+
         interrogation.addQuestion(releaseBridge);
+        interrogation.addQuestion(motive);
+        interrogation.addQuestion(serverAccess);
+        return interrogation;
+    }
+
+    private Interrogation createDavideInterrogation(Suspect davide) {
+        Interrogation interrogation = new Interrogation(
+                "int-davide-001",
+                davide,
+                LocalDateTime.of(2026, 3, 5, 11, 45)
+        );
+
+        Question investorCall = new Question(
+                "q-davide-investor-call",
+                "Con chi era al telefono durante la finestra critica?",
+                QuestionCategory.TIMELINE
+        );
+        investorCall.answerWith(new Answer(
+                "ans-davide-investor-call",
+                "Con un referente degli investitori. Stavamo cercando di salvare la partnership.",
+                ReliabilityLevel.MEDIUM
+        ));
+
+        Question returnOffice = new Question(
+                "q-davide-return-office",
+                "E rientrato in sede dopo l'incontro in centro?",
+                QuestionCategory.ALIBI
+        );
+        returnOffice.answerWith(new Answer(
+                "ans-davide-return-office",
+                "No. Ho lasciato il garage e sono andato direttamente a casa.",
+                ReliabilityLevel.MEDIUM
+        ));
+
+        Question motive = new Question(
+                "q-davide-partnership",
+                "La decisione della vittima avrebbe compromesso il suo bonus?",
+                QuestionCategory.MOTIVE
+        );
+        motive.answerWith(new Answer(
+                "ans-davide-partnership",
+                "Si, ma una rottura pubblica avrebbe danneggiato anche me. Volevo convincerlo, non eliminarlo.",
+                ReliabilityLevel.MEDIUM
+        ));
+
+        interrogation.addQuestion(investorCall);
+        interrogation.addQuestion(returnOffice);
         interrogation.addQuestion(motive);
         return interrogation;
     }

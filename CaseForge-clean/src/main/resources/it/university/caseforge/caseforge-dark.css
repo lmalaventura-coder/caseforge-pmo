@@ -40,7 +40,7 @@
     -fx-border-color: #334552;
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
-    -fx-padding: 14px;
+    -fx-padding: 16px;
 }
 
 .procedure-step {
@@ -61,6 +61,16 @@
 .accusation-fields,
 .accusation-block {
     -fx-spacing: 14px;
+}
+
+.workspace-scroll,
+.workspace-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.workspace-scroll {
+    -fx-background: transparent;
+    -fx-padding: 0;
 }
 
 .section-title {
@@ -122,9 +132,10 @@
 }
 
 .timeline-list .list-cell,
-.interrogation-list .list-cell {
+.interrogation-list .list-cell,
+.question-list .list-cell {
     -fx-text-fill: #d5e0ea;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-line-spacing: 1px;
 }
 
@@ -182,12 +193,42 @@
     -fx-text-fill: #ead5b7;
 }
 
+.evidence-status-contradiction {
+    -fx-background-color: #3b2025;
+    -fx-border-color: #8a525b;
+    -fx-text-fill: #f2c4cb;
+}
+
 .evidence-cell.evidence-discovered {
     -fx-background-color: rgba(62, 122, 91, 0.16);
 }
 
 .evidence-cell.evidence-undiscovered {
     -fx-background-color: rgba(155, 122, 82, 0.08);
+}
+
+.evidence-cell.evidence-contradiction {
+    -fx-background-color: rgba(138, 82, 91, 0.16);
+}
+
+.question-status-answered {
+    -fx-background-color: #19372a;
+    -fx-border-color: #41785c;
+    -fx-text-fill: #bfe9cf;
+}
+
+.question-status-pending {
+    -fx-background-color: #342b20;
+    -fx-border-color: #786043;
+    -fx-text-fill: #ead5b7;
+}
+
+.question-cell.question-answered {
+    -fx-background-color: rgba(62, 122, 91, 0.12);
+}
+
+.question-cell.question-pending {
+    -fx-background-color: rgba(155, 122, 82, 0.06);
 }
 
 .detail-area {
@@ -210,7 +251,7 @@
 
 .log-area {
     -fx-font-family: "Cascadia Mono", "Consolas", monospace;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-text-fill: #d9e6f0;
     -fx-background-color: #0f171f;
     -fx-control-inner-background: #0f171f;
@@ -222,12 +263,22 @@
     -fx-border-color: #425967;
 }
 
+.investigation-dossier-panel {
+    -fx-background-color: #19242d;
+    -fx-border-color: #405663;
+}
+
+.dossier-area {
+    -fx-font-size: 14px;
+    -fx-text-fill: #dce7ef;
+}
+
 .accusation-block {
     -fx-background-color: #1f1b16;
     -fx-border-color: #5f4a31;
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
-    -fx-padding: 12px;
+    -fx-padding: 9px 11px;
 }
 
 .dossier-combo {
@@ -286,13 +337,14 @@
 
 .interrogation-panel .section-title,
 .timeline-panel .section-title,
+.investigation-dossier-panel .section-title,
 .log-panel .section-title {
-    -fx-font-size: 17px;
+    -fx-font-size: 18px;
 }
 
 .interrogation-panel .list-cell,
 .timeline-panel .list-cell {
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
 }
 
 .log-area .content {

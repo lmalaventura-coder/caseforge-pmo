@@ -20,6 +20,11 @@ class AccusationEvaluationTest {
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
         investigation.discoverEvidence("ev-server-log");
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
         investigation.linkEvidenceToAnswer(
                 "ev-server-log",
                 "sus-marta-greco",
@@ -55,6 +60,11 @@ class AccusationEvaluationTest {
     void wrongSuspectDoesNotSolveCase() {
         Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
         investigation.discoverEvidence("ev-server-log");
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
         investigation.linkEvidenceToAnswer(
                 "ev-server-log",
                 "sus-marta-greco",
@@ -141,6 +151,11 @@ class AccusationEvaluationTest {
     void wrongTimelineEventKeepsTheAccusationIncomplete() {
         Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
         investigation.discoverEvidence("ev-server-log");
+        investigation.askQuestion(
+                "sus-marta-greco",
+                "int-marta-001",
+                "q-marta-server-access"
+        );
         investigation.linkEvidenceToAnswer(
                 "ev-server-log",
                 "sus-marta-greco",

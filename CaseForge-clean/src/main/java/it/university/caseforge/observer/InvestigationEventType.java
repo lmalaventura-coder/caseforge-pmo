@@ -2,6 +2,7 @@ package it.university.caseforge.observer;
 
 public enum InvestigationEventType {
     EVIDENCE_DISCOVERED,
+    ANSWER_OBTAINED,
     EVIDENCE_LINKED_TO_SUSPECT,
     EVIDENCE_LINKED_TO_ANSWER,
     CONTRADICTION_DETECTED,

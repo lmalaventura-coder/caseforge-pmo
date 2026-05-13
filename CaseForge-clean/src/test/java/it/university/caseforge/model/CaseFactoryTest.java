@@ -46,4 +46,43 @@ class CaseFactoryTest {
         assertFalse(caseFile.getSolution().orElseThrow().getCulpritSuspectId().equals(davide.getId()));
         assertEquals(davide.getId(), parkingExit.getRelatedSuspectId().orElseThrow());
     }
+
+    @Test
+    void demoCaseContainsAnAmbiguousLeadAndAConvincingFalseTrail() {
+        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+        Evidence badgeLog = caseFile.findEvidenceById("ev-badge-log").orElseThrow();
+        Suspect davide = caseFile.findSuspectById("sus-davide-serra").orElseThrow();
+
+        assertTrue(badgeLog.getDescription().contains("non prova da solo"));
+        assertTrue(davide.getMotive().contains("pista forte"));
+    }
+
+    @Test
+    void demoCaseKeepsAnOptionalContradictionBeyondThePrimarySolution() {
+        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+        Question optionalQuestion = caseFile.findSuspectById("sus-marta-greco")
+                .orElseThrow()
+                .getInterrogations()
+                .get(0)
+                .findQuestionById("q-marta-meeting-room")
+                .orElseThrow();
+
+        assertEquals("ev-fingerprint", optionalQuestion.getAnswer()
+                .getContradictionEvidence()
+                .orElseThrow()
+                .getId());
+    }
+
+    @Test
+    void everyDemoSuspectHasAtLeastThreeAvailableQuestions() {
+        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+
+        for (Suspect suspect : caseFile.getSuspects()) {
+            int questionCount = suspect.getInterrogations().stream()
+                    .mapToInt(interrogation -> interrogation.getQuestions().size())
+                    .sum();
+
+            assertTrue(questionCount >= 3, suspect.getName() + " should have at least three questions");
+        }
+    }
 }

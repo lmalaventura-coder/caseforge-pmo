@@ -1,6 +1,7 @@
 package it.university.caseforge.view;
 
 import it.university.caseforge.controller.CaseController;
+import it.university.caseforge.model.Answer;
 import it.university.caseforge.model.CaseFile;
 import it.university.caseforge.model.Contradiction;
 import it.university.caseforge.model.EvaluationResult;
@@ -19,6 +20,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -44,6 +46,7 @@ public class JavaFxCaseView implements CaseView {
 
     private final ListView<SuspectItem> suspectList = new ListView<>();
     private final ListView<EvidenceItem> evidenceList = new ListView<>();
+    private final ListView<QuestionPromptItem> questionList = new ListView<>();
     private final ListView<String> interrogationList = new ListView<>();
     private final ComboBox<AnswerLinkItem> answerComboBox = new ComboBox<>();
     private final ListView<String> timelineList = new ListView<>();
@@ -54,9 +57,11 @@ public class JavaFxCaseView implements CaseView {
 
     private final TextArea suspectDetailsArea = readOnlyArea();
     private final TextArea evidenceDetailsArea = readOnlyArea();
+    private final TextArea dossierArea = readOnlyArea();
     private final TextArea logArea = readOnlyArea();
 
     private final Button discoverEvidenceButton = new Button("Scopri prova selezionata");
+    private final Button askQuestionButton = new Button("Fai domanda selezionata");
     private final Button linkEvidenceButton = new Button("Collega prova selezionata alla risposta selezionata");
     private final Button formulateAccusationButton = new Button("Formula accusa");
     private final Button resetInvestigationButton = new Button("Nuova indagine");
@@ -114,6 +119,7 @@ public class JavaFxCaseView implements CaseView {
             relevantTimelineComboBox.getItems().setAll(caseFile.getTimeline().getEvents().stream()
                     .map(this::toTimelineEventItem)
                     .toList());
+            dossierArea.setText(buildInvestigationDossier(caseFile));
 
             restoreSuspectSelection(selectedSuspectId);
             restoreEvidenceSelection(selectedEvidenceId);
@@ -178,7 +184,7 @@ public class JavaFxCaseView implements CaseView {
     private void configureRoot() {
         root.setPadding(new Insets(18));
         root.setTop(buildHeader());
-        root.setCenter(buildInvestigationWorkspace());
+        root.setCenter(buildScrollableWorkspace());
         root.setBottom(buildActionArea());
     }
 
@@ -220,13 +226,22 @@ public class JavaFxCaseView implements CaseView {
         return label;
     }
 
+    private ScrollPane buildScrollableWorkspace() {
+        ScrollPane scrollPane = new ScrollPane(buildInvestigationWorkspace());
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPannable(true);
+        scrollPane.getStyleClass().add("workspace-scroll");
+        return scrollPane;
+    }
+
     private HBox buildInvestigationWorkspace() {
         VBox leftColumn = buildSuspectColumn();
         VBox centerColumn = buildCenterColumn();
         VBox rightColumn = buildRightColumn();
 
-        leftColumn.setPrefWidth(320);
-        rightColumn.setPrefWidth(360);
+        leftColumn.setPrefWidth(300);
+        rightColumn.setPrefWidth(410);
+        rightColumn.setMinWidth(360);
         HBox.setHgrow(centerColumn, Priority.ALWAYS);
 
         HBox workspace = new HBox(16, leftColumn, centerColumn, rightColumn);
@@ -251,11 +266,15 @@ public class JavaFxCaseView implements CaseView {
     }
 
     private VBox buildCenterColumn() {
-        evidenceList.setPrefWidth(360);
+        evidenceList.setPrefWidth(320);
         evidenceDetailsArea.setPrefRowCount(12);
-        interrogationList.setPrefHeight(220);
-        answerComboBox.setPromptText("Risposta dell'interrogatorio");
+        questionList.setPrefHeight(150);
+        questionList.setPlaceholder(new Label("Nessuna domanda disponibile"));
+        interrogationList.setPrefHeight(170);
+        interrogationList.setPlaceholder(new Label("Nessuna domanda posta"));
+        answerComboBox.setPromptText("Risposta ottenuta da collegare");
         answerComboBox.setPrefWidth(460);
+        askQuestionButton.setPrefWidth(210);
 
         VBox evidenceListPanel = new VBox(8,
                 sectionHeading("Prove disponibili e scoperte"),
@@ -275,8 +294,14 @@ public class JavaFxCaseView implements CaseView {
         evidenceArea.getStyleClass().add("split-evidence-area");
         VBox.setVgrow(evidenceArea, Priority.ALWAYS);
 
+        HBox questionActions = new HBox(10, askQuestionButton);
+        questionActions.setAlignment(Pos.CENTER_LEFT);
+
         VBox interrogationPanel = new VBox(8,
-                sectionHeading("Interrogatori del sospetto selezionato"),
+                sectionHeading("Domande disponibili"),
+                questionList,
+                questionActions,
+                sectionHeading("Dossier interrogatorio"),
                 interrogationList,
                 sectionHeading("Risposta da collegare"),
                 answerComboBox
@@ -291,14 +316,19 @@ public class JavaFxCaseView implements CaseView {
     }
 
     private VBox buildRightColumn() {
-        timelineList.setPrefHeight(280);
-        logArea.setPrefRowCount(14);
+        timelineList.setPrefHeight(320);
+        timelineList.setMinHeight(220);
+        dossierArea.setPrefRowCount(15);
+        dossierArea.setMinHeight(210);
+        logArea.setPrefRowCount(15);
+        logArea.setMinHeight(230);
 
         VBox timelinePanel = new VBox(8,
                 sectionHeading("Cronologia investigativa"),
                 timelineList
         );
         timelinePanel.getStyleClass().addAll("workspace-panel", "timeline-panel");
+        timelinePanel.setMinHeight(250);
         VBox.setVgrow(timelineList, Priority.ALWAYS);
 
         VBox logPanel = new VBox(8,
@@ -306,10 +336,21 @@ public class JavaFxCaseView implements CaseView {
                 logArea
         );
         logPanel.getStyleClass().addAll("workspace-panel", "log-panel");
+        logPanel.setMinHeight(260);
         VBox.setVgrow(logArea, Priority.ALWAYS);
 
-        VBox right = new VBox(14, timelinePanel, logPanel);
+        VBox dossierPanel = new VBox(8,
+                sectionHeading("Dossier investigativo"),
+                dossierArea
+        );
+        dossierPanel.getStyleClass().addAll("workspace-panel", "investigation-dossier-panel");
+        dossierPanel.setMinHeight(240);
+        VBox.setVgrow(dossierArea, Priority.ALWAYS);
+
+        VBox right = new VBox(14, timelinePanel, dossierPanel, logPanel);
         right.getStyleClass().add("right-column");
+        VBox.setVgrow(timelinePanel, Priority.ALWAYS);
+        VBox.setVgrow(dossierPanel, Priority.ALWAYS);
         VBox.setVgrow(logPanel, Priority.ALWAYS);
         return right;
     }
@@ -323,56 +364,51 @@ public class JavaFxCaseView implements CaseView {
         selectionSummary.getStyleClass().add("selection-summary");
 
         accusedSuspectComboBox.setPromptText("Sospetto accusato");
-        accusedSuspectComboBox.setPrefWidth(240);
+        accusedSuspectComboBox.setPrefWidth(155);
         primaryEvidenceComboBox.setPromptText("Prova principale");
-        primaryEvidenceComboBox.setPrefWidth(250);
+        primaryEvidenceComboBox.setPrefWidth(180);
         primaryContradictionComboBox.setPromptText("Contraddizione principale");
-        primaryContradictionComboBox.setPrefWidth(360);
+        primaryContradictionComboBox.setPrefWidth(240);
         relevantTimelineComboBox.setPromptText("Evento della cronologia rilevante");
-        relevantTimelineComboBox.setPrefWidth(300);
+        relevantTimelineComboBox.setPrefWidth(200);
         discoverEvidenceButton.setPrefWidth(190);
-        linkEvidenceButton.setPrefWidth(320);
+        linkEvidenceButton.setPrefWidth(310);
         linkEvidenceButton.setWrapText(true);
         formulateAccusationButton.setPrefWidth(150);
-        resetInvestigationButton.setPrefWidth(170);
+        resetInvestigationButton.setPrefWidth(160);
 
         HBox investigativeActions = new HBox(12,
                 discoverEvidenceButton,
-                linkEvidenceButton
+                linkEvidenceButton,
+                formulateAccusationButton,
+                resetInvestigationButton
         );
         investigativeActions.setAlignment(Pos.CENTER_LEFT);
         investigativeActions.getStyleClass().add("action-strip");
 
-        HBox accusationFields = new HBox(12,
+        HBox titleRow = new HBox(12,
+                sectionHeading("Azioni investigative"),
+                selectionSummary
+        );
+        titleRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(selectionSummary, Priority.ALWAYS);
+
+        HBox accusationFields = new HBox(10,
+                accusationHeading(),
                 accusationField("Sospetto", accusedSuspectComboBox),
                 accusationField("Prova principale", primaryEvidenceComboBox),
                 accusationField("Contraddizione", primaryContradictionComboBox),
                 accusationField("Evento cronologia", relevantTimelineComboBox)
         );
-        accusationFields.getStyleClass().add("accusation-fields");
+        accusationFields.setAlignment(Pos.CENTER_LEFT);
+        accusationFields.getStyleClass().addAll("accusation-fields", "accusation-block");
 
-        HBox accusationButtons = new HBox(12,
-                formulateAccusationButton,
-                resetInvestigationButton
-        );
-        accusationButtons.setAlignment(Pos.CENTER_LEFT);
-        accusationButtons.getStyleClass().add("action-strip");
-
-        VBox accusationSelectors = new VBox(10,
-                accusationFields,
-                accusationButtons
-        );
-        accusationSelectors.getStyleClass().add("accusation-block");
-
-        VBox actionArea = new VBox(10,
-                sectionHeading("Azioni investigative"),
-                selectionSummary,
+        VBox actionArea = new VBox(8,
+                titleRow,
                 investigativeActions,
-                accusationHeading(),
-                accusationSelectors
+                accusationFields
         );
         actionArea.getStyleClass().add("action-panel");
-        actionArea.setPadding(new Insets(16, 0, 0, 0));
         return actionArea;
     }
 
@@ -413,12 +449,32 @@ public class JavaFxCaseView implements CaseView {
             controller.discoverEvidence(evidence.id());
         }));
 
+        askQuestionButton.setOnAction(event -> withController(() -> {
+            QuestionPromptItem question = questionList.getSelectionModel().getSelectedItem();
+            if (question == null) {
+                appendLog("Seleziona una domanda dall'elenco prima di premere Fai domanda selezionata.");
+                return;
+            }
+
+            appendLog("Domanda selezionata posta: " + question.questionText() + ".");
+            controller.askQuestion(
+                    question.suspectId(),
+                    question.interrogationId(),
+                    question.questionId()
+            );
+        }));
+
         linkEvidenceButton.setOnAction(event -> withController(() -> {
+            SuspectItem suspect = suspectList.getSelectionModel().getSelectedItem();
             EvidenceItem evidence = evidenceList.getSelectionModel().getSelectedItem();
             AnswerLinkItem answer = answerComboBox.getValue();
 
-            if (evidence == null && answer == null) {
-                appendLog("Per collegare una prova a una risposta, seleziona prima entrambe.");
+            if (suspect == null && evidence == null && answer == null) {
+                appendLog("Per collegare una prova a una risposta, seleziona sospetto, prova e risposta ottenuta.");
+                return;
+            }
+            if (suspect == null) {
+                appendLog("Per collegare una prova, seleziona prima il sospetto interrogato.");
                 return;
             }
             if (evidence == null) {
@@ -426,15 +482,20 @@ public class JavaFxCaseView implements CaseView {
                 return;
             }
             if (answer == null) {
-                appendLog("Per collegare la prova, scegli una risposta dell'interrogatorio del sospetto selezionato.");
+                appendLog("Per collegare la prova, scegli una risposta gia ottenuta del sospetto selezionato.");
+                return;
+            }
+            if (!answer.suspectId().equals(suspect.id())) {
+                appendLog("La risposta selezionata non appartiene al sospetto corrente. Cambia sospetto o risposta.");
                 return;
             }
 
-            appendLog("Richiesta collegamento prova-risposta: " + evidence.title()
-                    + " -> " + answer.answerPreview() + ".");
+            appendLog("Collegamento richiesto: prova '" + evidence.title()
+                    + "' alla risposta '" + answer.answerPreview()
+                    + "' di " + suspect.name() + ".");
             controller.linkEvidenceToAnswer(
                     evidence.id(),
-                    answer.suspectId(),
+                    suspect.id(),
                     answer.interrogationId(),
                     answer.questionId()
             );
@@ -485,7 +546,8 @@ public class JavaFxCaseView implements CaseView {
                 .flatMap(interrogation -> interrogation.getContradictions().stream())
                 .map(this::formatContradictionLine)
                 .toList();
-        List<String> interrogationLines = buildInterrogationLines(suspect);
+        List<QuestionPromptItem> questionItems = buildQuestionPromptItems(suspect);
+        List<String> interrogationLines = buildInterrogationLines(caseFile, suspect);
         List<AnswerLinkItem> answerLinkItems = buildAnswerLinkItems(suspect);
 
         String detailText = String.join(System.lineSeparator(),
@@ -512,6 +574,7 @@ public class JavaFxCaseView implements CaseView {
                 label,
                 reliabilityLabel,
                 detailText,
+                questionItems,
                 interrogationLines,
                 answerLinkItems
         );
@@ -538,11 +601,16 @@ public class JavaFxCaseView implements CaseView {
                 "Perche potrebbe essere rilevante: " + evidenceRelevance(linkedSuspects, evidence.isDiscovered())
         );
 
+        boolean contradictionEvidence = caseFile.getInterrogations().stream()
+                .flatMap(interrogation -> interrogation.getContradictions().stream())
+                .anyMatch(contradiction -> contradiction.getEvidence().getId().equals(evidence.getId()));
+
         return new EvidenceItem(
                 evidence.getId(),
                 evidence.getTitle(),
                 evidence.getType().toString(),
                 evidence.isDiscovered(),
+                contradictionEvidence,
                 label,
                 detailText
         );
@@ -557,34 +625,59 @@ public class JavaFxCaseView implements CaseView {
         return new TimelineEventItem(event.getId(), formatTimelineEvent(event));
     }
 
-    private List<String> buildInterrogationLines(Suspect suspect) {
+    private List<String> buildInterrogationLines(CaseFile caseFile, Suspect suspect) {
         if (suspect.getInterrogations().isEmpty()) {
             return List.of("Nessun interrogatorio disponibile per il sospetto selezionato.");
         }
 
         List<String> lines = new ArrayList<>();
+        boolean anyAnswerCollected = false;
         for (Interrogation interrogation : suspect.getInterrogations()) {
             lines.add("Interrogatorio " + interrogation.getId()
                     + " | " + TIMELINE_FORMATTER.format(interrogation.getStartedAt()));
             for (Question question : interrogation.getQuestions()) {
-                lines.add("Q [" + question.getCategory() + "]: " + question.getText());
-                if (question.getAnswer() != null) {
-                    lines.add("A [" + question.getAnswer().getReliabilityLevel() + "]: "
-                            + question.getAnswer().getText());
+                if (question.isAnswerObtained() && question.getAnswer() != null) {
+                    anyAnswerCollected = true;
+                    Answer answer = question.getAnswer();
+                    lines.add("Domanda [" + question.getCategory() + "]: " + question.getText());
+                    lines.add("Risposta [" + answer.getReliabilityLevel() + "]: " + answer.getText());
+                    lines.add("Prova collegata: "
+                            + joinedOrFallback(resolveLinkedEvidenceTitles(caseFile, answer), "nessuna"));
+                    lines.add("Contraddizione: "
+                            + contradictionFor(interrogation, question)
+                                    .map(this::formatContradictionLine)
+                                    .orElse("nessuna rilevata"));
                 }
             }
-            for (Contradiction contradiction : interrogation.getContradictions()) {
-                lines.add("Contraddizione: " + formatContradictionLine(contradiction));
+        }
+        return anyAnswerCollected ? lines : List.of("Nessuna domanda posta.");
+    }
+
+    private List<QuestionPromptItem> buildQuestionPromptItems(Suspect suspect) {
+        List<QuestionPromptItem> items = new ArrayList<>();
+        for (Interrogation interrogation : suspect.getInterrogations()) {
+            for (Question question : interrogation.getQuestions()) {
+                if (question.isAnswerObtained()) {
+                    continue;
+                }
+                items.add(new QuestionPromptItem(
+                        suspect.getId(),
+                        interrogation.getId(),
+                        question.getId(),
+                        question.getCategory().toString(),
+                        question.getText(),
+                        question.isAnswerObtained()
+                ));
             }
         }
-        return lines;
+        return items;
     }
 
     private List<AnswerLinkItem> buildAnswerLinkItems(Suspect suspect) {
         List<AnswerLinkItem> items = new ArrayList<>();
         for (Interrogation interrogation : suspect.getInterrogations()) {
             for (Question question : interrogation.getQuestions()) {
-                if (question.getAnswer() != null) {
+                if (question.isAnswerObtained() && question.getAnswer() != null) {
                     items.add(new AnswerLinkItem(
                             suspect.getId(),
                             interrogation.getId(),
@@ -608,20 +701,22 @@ public class JavaFxCaseView implements CaseView {
         if (event.getType() == InvestigationEventType.CONTRADICTION_DETECTED) {
             return event.getContradiction()
                     .map(contradiction -> "Contraddizione rilevata: "
-                            + formatContradictionLine(contradiction))
+                            + formatContradictionLine(contradiction)
+                            + ". "
+                            + contradiction.getExplanation())
                     .orElse(event.getMessage());
         }
 
+        if (event.getType() == InvestigationEventType.ANSWER_OBTAINED) {
+            return event.getMessage();
+        }
+
         if (event.getType() == InvestigationEventType.EVIDENCE_LINKED_TO_ANSWER) {
-            return event.getEvidence()
-                    .map(evidence -> "Prova collegata alla risposta: " + evidence.getTitle() + ".")
-                    .orElse("Prova collegata alla risposta.");
+            return event.getMessage();
         }
 
         if (event.getType() == InvestigationEventType.NO_CONTRADICTION_DETECTED) {
-            return event.getEvidence()
-                    .map(evidence -> "Nessuna contraddizione rilevata per la prova: " + evidence.getTitle() + ".")
-                    .orElse("Nessuna contraddizione rilevata.");
+            return event.getMessage();
         }
 
         if (event.getType() == InvestigationEventType.EVIDENCE_LINKED_TO_SUSPECT) {
@@ -646,6 +741,20 @@ public class JavaFxCaseView implements CaseView {
                 + " smentisce la risposta: " + contradiction.getAnswer().getText();
     }
 
+    private List<String> resolveLinkedEvidenceTitles(CaseFile caseFile, Answer answer) {
+        return answer.getLinkedEvidenceIds().stream()
+                .map(evidenceId -> caseFile.findEvidenceById(evidenceId)
+                        .map(Evidence::getTitle)
+                        .orElse(evidenceId))
+                .toList();
+    }
+
+    private Optional<Contradiction> contradictionFor(Interrogation interrogation, Question question) {
+        return interrogation.getContradictions().stream()
+                .filter(contradiction -> contradiction.getQuestion() == question)
+                .findFirst();
+    }
+
     private String evidenceRelevance(List<String> linkedSuspects, boolean discovered) {
         if (!linkedSuspects.isEmpty()) {
             return "aiuta a confrontare " + String.join(", ", linkedSuspects)
@@ -661,6 +770,8 @@ public class JavaFxCaseView implements CaseView {
         SuspectItem suspect = suspectList.getSelectionModel().getSelectedItem();
         if (suspect == null) {
             suspectDetailsArea.setText("Seleziona un sospetto per visualizzare movente, alibi, affidabilita e prove collegate.");
+            questionList.getItems().clear();
+            questionList.getSelectionModel().clearSelection();
             interrogationList.getItems().setAll("Gli interrogatori compariranno dopo la selezione di un sospetto.");
             answerComboBox.getItems().clear();
             answerComboBox.setValue(null);
@@ -669,12 +780,11 @@ public class JavaFxCaseView implements CaseView {
         }
 
         suspectDetailsArea.setText(suspect.detailText());
+        questionList.getItems().setAll(suspect.questionItems());
+        questionList.getSelectionModel().clearSelection();
         interrogationList.getItems().setAll(suspect.interrogationLines());
         answerComboBox.getItems().setAll(suspect.answerLinkItems());
         answerComboBox.setValue(null);
-        if (!answerComboBox.getItems().isEmpty()) {
-            answerComboBox.getSelectionModel().selectFirst();
-        }
         selectedSuspectLabel.setText("Sospetto selezionato: " + suspect.name());
     }
 
@@ -719,6 +829,7 @@ public class JavaFxCaseView implements CaseView {
     private void clearInvestigationSelections() {
         suspectList.getSelectionModel().clearSelection();
         evidenceList.getSelectionModel().clearSelection();
+        questionList.getSelectionModel().clearSelection();
         accusedSuspectComboBox.setValue(null);
         primaryEvidenceComboBox.setValue(null);
         primaryContradictionComboBox.setValue(null);
@@ -813,6 +924,47 @@ public class JavaFxCaseView implements CaseView {
         return values.isEmpty() ? fallback : String.join(", ", values);
     }
 
+    private String buildInvestigationDossier(CaseFile caseFile) {
+        List<String> lines = new ArrayList<>();
+        lines.add("Prove scoperte");
+        List<String> discoveredEvidence = caseFile.getEvidences().stream()
+                .filter(Evidence::isDiscovered)
+                .map(evidence -> "- " + evidence.getTitle() + " [" + evidence.getType() + "]")
+                .toList();
+        lines.addAll(discoveredEvidence.isEmpty() ? List.of("- Nessuna prova scoperta.") : discoveredEvidence);
+
+        lines.add("");
+        lines.add("Contraddizioni trovate");
+        List<String> contradictions = caseFile.getInterrogations().stream()
+                .flatMap(interrogation -> interrogation.getContradictions().stream())
+                .map(contradiction -> "- " + formatContradictionLine(contradiction))
+                .toList();
+        lines.addAll(contradictions.isEmpty() ? List.of("- Nessuna contraddizione confermata.") : contradictions);
+
+        lines.add("");
+        lines.add("Risposte ottenute");
+        List<String> obtainedAnswers = caseFile.getSuspects().stream()
+                .flatMap(suspect -> suspect.getInterrogations().stream()
+                        .flatMap(interrogation -> interrogation.getQuestions().stream()
+                                .filter(Question::isAnswerObtained)
+                                .filter(question -> question.getAnswer() != null)
+                                .map(question -> "- " + suspect.getName()
+                                        + ": " + question.getText()
+                                        + " -> " + question.getAnswer().getText())))
+                .toList();
+        lines.addAll(obtainedAnswers.isEmpty() ? List.of("- Nessuna risposta raccolta.") : obtainedAnswers);
+
+        lines.add("");
+        lines.add("Eventi della cronologia importanti");
+        List<String> timelineEvents = caseFile.getTimeline().getEvents().stream()
+                .map(event -> "- " + TIMELINE_FORMATTER.format(event.getOccurredAt())
+                        + " | " + event.getTitle())
+                .toList();
+        lines.addAll(timelineEvents.isEmpty() ? List.of("- Nessun evento disponibile.") : timelineEvents);
+
+        return String.join(System.lineSeparator(), lines);
+    }
+
     private String reliabilityCategory(int reliabilityScore) {
         if (reliabilityScore >= 80) {
             return "ALTA";
@@ -882,11 +1034,13 @@ public class JavaFxCaseView implements CaseView {
 
         suspectList.getStyleClass().addAll("dossier-list", "suspect-list");
         evidenceList.getStyleClass().addAll("dossier-list", "evidence-list");
+        questionList.getStyleClass().addAll("dossier-list", "question-list");
         interrogationList.getStyleClass().addAll("dossier-list", "interrogation-list");
         timelineList.getStyleClass().addAll("dossier-list", "timeline-list");
 
         suspectDetailsArea.getStyleClass().addAll("detail-area", "suspect-detail-area");
         evidenceDetailsArea.getStyleClass().addAll("detail-area", "evidence-detail-area");
+        dossierArea.getStyleClass().addAll("detail-area", "dossier-area");
         logArea.getStyleClass().addAll("detail-area", "log-area");
 
         answerComboBox.getStyleClass().add("dossier-combo");
@@ -896,12 +1050,14 @@ public class JavaFxCaseView implements CaseView {
         relevantTimelineComboBox.getStyleClass().add("dossier-combo");
 
         discoverEvidenceButton.getStyleClass().addAll("case-button", "button-muted");
+        askQuestionButton.getStyleClass().addAll("case-button", "button-accent");
         linkEvidenceButton.getStyleClass().addAll("case-button", "button-accent");
         formulateAccusationButton.getStyleClass().addAll("case-button", "button-primary");
         resetInvestigationButton.getStyleClass().addAll("case-button", "button-secondary");
 
         configureSuspectCells();
         configureEvidenceCells();
+        configureQuestionCells();
     }
 
     private void configureSuspectCells() {
@@ -960,10 +1116,15 @@ public class JavaFxCaseView implements CaseView {
                 VBox copy = new VBox(3, title, type);
                 HBox.setHgrow(copy, Priority.ALWAYS);
 
-                Label status = new Label(item.discovered() ? "SCOPERTA" : "DA SCOPRIRE");
+                String statusLabel = item.contradictionEvidence()
+                        ? "CONTRADDIZIONE"
+                        : item.discovered() ? "SCOPERTA" : "DA SCOPRIRE";
+                Label status = new Label(statusLabel);
                 status.getStyleClass().addAll(
                         "badge",
-                        item.discovered() ? "evidence-status-discovered" : "evidence-status-hidden"
+                        item.contradictionEvidence()
+                                ? "evidence-status-contradiction"
+                                : item.discovered() ? "evidence-status-discovered" : "evidence-status-hidden"
                 );
 
                 HBox row = new HBox(10, copy, status);
@@ -973,7 +1134,51 @@ public class JavaFxCaseView implements CaseView {
                 setGraphic(row);
                 getStyleClass().addAll(
                         "evidence-cell",
-                        item.discovered() ? "evidence-discovered" : "evidence-undiscovered"
+                        item.contradictionEvidence()
+                                ? "evidence-contradiction"
+                                : item.discovered() ? "evidence-discovered" : "evidence-undiscovered"
+                );
+            }
+        });
+    }
+
+    private void configureQuestionCells() {
+        questionList.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(QuestionPromptItem item, boolean empty) {
+                super.updateItem(item, empty);
+                getStyleClass().removeAll("question-cell", "question-answered", "question-pending");
+
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                Label question = new Label(item.questionText());
+                question.getStyleClass().add("list-primary-text");
+                question.setWrapText(true);
+
+                Label category = new Label(item.categoryLabel());
+                category.getStyleClass().add("list-secondary-text");
+
+                VBox copy = new VBox(3, question, category);
+                HBox.setHgrow(copy, Priority.ALWAYS);
+
+                Label state = new Label(item.answerObtained() ? "RISPOSTA OTTENUTA" : "DA PORRE");
+                state.getStyleClass().addAll(
+                        "badge",
+                        item.answerObtained() ? "question-status-answered" : "question-status-pending"
+                );
+
+                HBox row = new HBox(10, copy, state);
+                row.setAlignment(Pos.CENTER_LEFT);
+
+                setText(null);
+                setGraphic(row);
+                getStyleClass().addAll(
+                        "question-cell",
+                        item.answerObtained() ? "question-answered" : "question-pending"
                 );
             }
         });
@@ -998,6 +1203,7 @@ public class JavaFxCaseView implements CaseView {
             String label,
             String reliabilityLabel,
             String detailText,
+            List<QuestionPromptItem> questionItems,
             List<String> interrogationLines,
             List<AnswerLinkItem> answerLinkItems
     ) implements IdentifiedItem {
@@ -1012,6 +1218,7 @@ public class JavaFxCaseView implements CaseView {
             String title,
             String typeLabel,
             boolean discovered,
+            boolean contradictionEvidence,
             String label,
             String detailText
     ) implements IdentifiedItem {
@@ -1050,6 +1257,20 @@ public class JavaFxCaseView implements CaseView {
         @Override
         public String toString() {
             return label;
+        }
+    }
+
+    private record QuestionPromptItem(
+            String suspectId,
+            String interrogationId,
+            String questionId,
+            String categoryLabel,
+            String questionText,
+            boolean answerObtained
+    ) {
+        @Override
+        public String toString() {
+            return questionText;
         }
     }
 

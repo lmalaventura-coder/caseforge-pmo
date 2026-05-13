@@ -4,6 +4,7 @@ import it.university.caseforge.model.Accusation;
 import it.university.caseforge.model.Contradiction;
 import it.university.caseforge.model.EvaluationResult;
 import it.university.caseforge.model.Evidence;
+import it.university.caseforge.model.Question;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -64,24 +65,53 @@ public class InvestigationEvent {
         );
     }
 
-    public static InvestigationEvent evidenceLinkedToAnswer(Evidence evidence, LocalDateTime occurredAt) {
+    public static InvestigationEvent answerObtained(Question question, LocalDateTime occurredAt) {
+        Question nonNullQuestion = Objects.requireNonNull(question);
         return new InvestigationEvent(
-                InvestigationEventType.EVIDENCE_LINKED_TO_ANSWER,
-                "Prova collegata alla risposta.",
+                InvestigationEventType.ANSWER_OBTAINED,
+                "Risposta ottenuta per la domanda: " + nonNullQuestion.getText(),
                 occurredAt,
-                Objects.requireNonNull(evidence),
+                null,
                 null,
                 null,
                 null
         );
     }
 
-    public static InvestigationEvent noContradictionDetected(Evidence evidence, LocalDateTime occurredAt) {
+    public static InvestigationEvent evidenceLinkedToAnswer(
+            Evidence evidence,
+            Question question,
+            LocalDateTime occurredAt
+    ) {
+        Evidence nonNullEvidence = Objects.requireNonNull(evidence);
+        Question nonNullQuestion = Objects.requireNonNull(question);
+        return new InvestigationEvent(
+                InvestigationEventType.EVIDENCE_LINKED_TO_ANSWER,
+                "Prova '" + nonNullEvidence.getTitle()
+                        + "' collegata alla risposta della domanda: "
+                        + nonNullQuestion.getText(),
+                occurredAt,
+                nonNullEvidence,
+                null,
+                null,
+                null
+        );
+    }
+
+    public static InvestigationEvent noContradictionDetected(
+            Evidence evidence,
+            Question question,
+            LocalDateTime occurredAt
+    ) {
+        Evidence nonNullEvidence = Objects.requireNonNull(evidence);
+        Question nonNullQuestion = Objects.requireNonNull(question);
         return new InvestigationEvent(
                 InvestigationEventType.NO_CONTRADICTION_DETECTED,
-                "Nessuna contraddizione rilevata.",
+                "Nessuna contraddizione: la prova '" + nonNullEvidence.getTitle()
+                        + "' non smentisce la risposta alla domanda: "
+                        + nonNullQuestion.getText(),
                 occurredAt,
-                Objects.requireNonNull(evidence),
+                nonNullEvidence,
                 null,
                 null,
                 null

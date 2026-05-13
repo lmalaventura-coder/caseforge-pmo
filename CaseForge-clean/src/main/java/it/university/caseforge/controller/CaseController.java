@@ -10,6 +10,12 @@ public interface CaseController {
 
     void discoverEvidence(String evidenceId);
 
+    void askQuestion(
+            String suspectId,
+            String interrogationId,
+            String questionId
+    );
+
     void linkEvidenceToSuspect(String evidenceId, String suspectId);
 
     void linkEvidenceToAnswer(
