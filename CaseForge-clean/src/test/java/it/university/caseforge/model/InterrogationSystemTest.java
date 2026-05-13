@@ -57,7 +57,7 @@ class InterrogationSystemTest {
 
     @Test
     void discoveredContradictingEvidenceReducesReliabilityAndStoresContradiction() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         Suspect marta = investigation.getCaseFile().findSuspectById("sus-marta-greco").orElseThrow();
 
         investigation.discoverEvidence("ev-server-log");
@@ -79,7 +79,7 @@ class InterrogationSystemTest {
 
     @Test
     void discoveringSameEvidenceTwiceDoesNotDuplicateContradictions() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         Suspect marta = investigation.getCaseFile().findSuspectById("sus-marta-greco").orElseThrow();
 
         investigation.discoverEvidence("ev-server-log");
@@ -107,7 +107,7 @@ class InterrogationSystemTest {
 
     @Test
     void contradictionDetectionNotifiesObservers() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
 
@@ -130,7 +130,7 @@ class InterrogationSystemTest {
 
     @Test
     void discoveringEvidenceDoesNotChangeReliability() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         Suspect marta = investigation.getCaseFile().findSuspectById("sus-marta-greco").orElseThrow();
 
         investigation.discoverEvidence("ev-server-log");
@@ -141,7 +141,7 @@ class InterrogationSystemTest {
 
     @Test
     void linkingCompatibleEvidenceDoesNotChangeReliability() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         Suspect sofia = investigation.getCaseFile().findSuspectById("sus-sofia-rinaldi").orElseThrow();
 
         investigation.discoverEvidence("ev-chat-message");
@@ -163,7 +163,7 @@ class InterrogationSystemTest {
 
     @Test
     void linkingSameEvidenceToSameAnswerDoesNotDuplicateEvents() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
         investigation.discoverEvidence("ev-chat-message");
@@ -199,7 +199,7 @@ class InterrogationSystemTest {
 
     @Test
     void askingQuestionStoresTheObtainedAnswerAndNotifiesObservers() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
 
@@ -226,7 +226,7 @@ class InterrogationSystemTest {
 
     @Test
     void askingAChosenQuestionRevealsOnlyThatAnswer() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         Interrogation interrogation = investigation.getCaseFile()
                 .findSuspectById("sus-marta-greco")
                 .orElseThrow()
@@ -247,7 +247,7 @@ class InterrogationSystemTest {
 
     @Test
     void sameSuspectCanAnswerMultipleExplicitQuestions() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         Interrogation interrogation = investigation.getCaseFile()
                 .findSuspectById("sus-marta-greco")
                 .orElseThrow()
@@ -274,7 +274,7 @@ class InterrogationSystemTest {
 
     @Test
     void obtainedAnswerRemainsAvailableForTheInterrogationDossier() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         Question question = investigation.getCaseFile()
                 .findSuspectById("sus-sofia-rinaldi")
                 .orElseThrow()
@@ -298,7 +298,7 @@ class InterrogationSystemTest {
 
     @Test
     void askingTheSameQuestionTwiceDoesNotDuplicateAnswerEvents() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
 
@@ -322,7 +322,7 @@ class InterrogationSystemTest {
 
     @Test
     void evidenceCannotBeLinkedBeforeAnswerIsObtained() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         investigation.discoverEvidence("ev-server-log");
 
         IllegalStateException exception = assertThrows(

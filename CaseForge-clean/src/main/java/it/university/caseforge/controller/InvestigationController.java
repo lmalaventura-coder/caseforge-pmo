@@ -67,18 +67,13 @@ public class InvestigationController implements CaseController {
     }
 
     @Override
-    public void loadDemoCase() {
+    public void loadDefaultCase() {
         startInvestigation(defaultCaseId(), false);
     }
 
     @Override
     public void loadCase(String caseId) {
         startInvestigation(caseId, investigation != null);
-    }
-
-    @Override
-    public void resetDemoInvestigation() {
-        resetCurrentInvestigation();
     }
 
     @Override

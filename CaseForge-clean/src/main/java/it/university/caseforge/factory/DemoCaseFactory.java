@@ -53,7 +53,7 @@ public class DemoCaseFactory implements CaseFactory {
     }
 
     @Override
-    public CaseFile createDemoCase() {
+    public CaseFile createDefaultCase() {
         return createHelixNovaCase();
     }
 

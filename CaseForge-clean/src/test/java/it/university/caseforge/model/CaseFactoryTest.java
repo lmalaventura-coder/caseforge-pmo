@@ -11,7 +11,7 @@ class CaseFactoryTest {
 
     @Test
     void demoCaseContainsCoreDomainData() {
-        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+        CaseFile caseFile = new DemoCaseFactory().createDefaultCase();
 
         assertEquals("case-001", caseFile.getId());
         assertEquals(4, caseFile.getSuspects().size());
@@ -22,7 +22,7 @@ class CaseFactoryTest {
 
     @Test
     void demoCasePresentsACoherentStartupInvestigation() {
-        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+        CaseFile caseFile = new DemoCaseFactory().createDefaultCase();
 
         assertEquals("Violazione di mezzanotte in HelixNova", caseFile.getTitle());
         assertTrue(caseFile.getDescription().contains("HelixNova"));
@@ -61,7 +61,7 @@ class CaseFactoryTest {
 
     @Test
     void demoCaseIncludesACredibleInnocentSuspectWithTimelineSupport() {
-        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+        CaseFile caseFile = new DemoCaseFactory().createDefaultCase();
         Suspect davide = caseFile.findSuspectById("sus-davide-serra").orElseThrow();
         TimelineEvent parkingExit = caseFile.getTimeline().getEvents().stream()
                 .filter(event -> event.getId().equals("tl-parking-exit"))
@@ -77,7 +77,7 @@ class CaseFactoryTest {
 
     @Test
     void demoCaseContainsAnAmbiguousLeadAndAConvincingFalseTrail() {
-        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+        CaseFile caseFile = new DemoCaseFactory().createDefaultCase();
         Evidence badgeLog = caseFile.findEvidenceById("ev-badge-log").orElseThrow();
         Suspect davide = caseFile.findSuspectById("sus-davide-serra").orElseThrow();
 
@@ -87,7 +87,7 @@ class CaseFactoryTest {
 
     @Test
     void demoCaseKeepsAnOptionalContradictionBeyondThePrimarySolution() {
-        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+        CaseFile caseFile = new DemoCaseFactory().createDefaultCase();
         Question optionalQuestion = caseFile.findSuspectById("sus-marta-greco")
                 .orElseThrow()
                 .getInterrogations()
@@ -103,7 +103,7 @@ class CaseFactoryTest {
 
     @Test
     void everyDemoSuspectHasAtLeastThreeAvailableQuestions() {
-        CaseFile caseFile = new DemoCaseFactory().createDemoCase();
+        CaseFile caseFile = new DemoCaseFactory().createDefaultCase();
 
         for (Suspect suspect : caseFile.getSuspects()) {
             int questionCount = suspect.getInterrogations().stream()

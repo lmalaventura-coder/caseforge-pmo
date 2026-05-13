@@ -15,7 +15,7 @@ class InvestigationObserverTest {
 
     @Test
     void discoveringEvidenceNotifiesObservers() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
 
@@ -28,7 +28,7 @@ class InvestigationObserverTest {
 
     @Test
     void discoveringSameEvidenceTwiceDoesNotDuplicateDiscoveryNotifications() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
 

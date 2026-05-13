@@ -29,7 +29,7 @@ class JsonInvestigationRepositoryTest {
 
     @Test
     void savesANewInvestigationAsJson() throws Exception {
-        Investigation investigation = new Investigation(caseFactory.createDemoCase());
+        Investigation investigation = new Investigation(caseFactory.createDefaultCase());
         Path saveFile = tempDir.resolve("new-investigation.json");
 
         repository.save(investigation, "sus-marta-greco", saveFile);
@@ -43,7 +43,7 @@ class JsonInvestigationRepositoryTest {
 
     @Test
     void loadsASavedInvestigation() throws Exception {
-        Investigation investigation = new Investigation(caseFactory.createDemoCase());
+        Investigation investigation = new Investigation(caseFactory.createDefaultCase());
         Path saveFile = tempDir.resolve("load-investigation.json");
         repository.save(investigation, "sus-luca-conti", saveFile);
 
@@ -56,7 +56,7 @@ class JsonInvestigationRepositoryTest {
 
     @Test
     void persistsDiscoveredEvidence() throws Exception {
-        Investigation investigation = new Investigation(caseFactory.createDemoCase());
+        Investigation investigation = new Investigation(caseFactory.createDefaultCase());
         investigation.discoverEvidence("ev-server-log");
         Path saveFile = tempDir.resolve("discovered-evidence.json");
 
@@ -77,7 +77,7 @@ class JsonInvestigationRepositoryTest {
 
     @Test
     void persistsObtainedAnswersLinkedEvidenceAndContradictions() throws Exception {
-        Investigation investigation = new Investigation(caseFactory.createDemoCase());
+        Investigation investigation = new Investigation(caseFactory.createDefaultCase());
         investigation.discoverEvidence("ev-server-log");
         investigation.askQuestion(
                 "sus-marta-greco",
@@ -122,7 +122,7 @@ class JsonInvestigationRepositoryTest {
 
     @Test
     void persistsFinalAccusationAndClosedStatus() throws Exception {
-        Investigation investigation = new Investigation(caseFactory.createDemoCase());
+        Investigation investigation = new Investigation(caseFactory.createDefaultCase());
         investigation.discoverEvidence("ev-server-log");
         investigation.askQuestion(
                 "sus-marta-greco",

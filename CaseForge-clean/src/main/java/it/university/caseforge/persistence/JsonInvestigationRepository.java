@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class JsonInvestigationRepository implements InvestigationRepository {
 
@@ -54,12 +53,30 @@ public class JsonInvestigationRepository implements InvestigationRepository {
         InvestigationSaveData data = objectMapper.readValue(nonNullPath.toFile(), InvestigationSaveData.class);
         validate(data);
 
+        Investigation investigation = restoreInvestigation(data);
+        return new LoadedInvestigation(investigation, data.selectedSuspectId);
+    }
+
+    private Investigation restoreInvestigation(InvestigationSaveData data) throws IOException {
         CaseFile caseFile = caseFactory.createCase(data.caseId);
         Investigation investigation = new Investigation(caseFile);
 
+        restoreDiscoveredEvidence(investigation, data);
+        restoreObtainedAnswers(investigation, data);
+        restoreEvidenceSuspectLinks(investigation, data);
+        restoreEvidenceAnswerLinks(investigation, data);
+        restoreClosedState(investigation, data);
+
+        return investigation;
+    }
+
+    private void restoreDiscoveredEvidence(Investigation investigation, InvestigationSaveData data) {
         for (String evidenceId : safeList(data.discoveredEvidenceIds)) {
             investigation.discoverEvidence(evidenceId);
         }
+    }
+
+    private void restoreObtainedAnswers(Investigation investigation, InvestigationSaveData data) {
         for (QuestionStateData questionState : safeList(data.obtainedQuestions)) {
             investigation.askQuestion(
                     questionState.suspectId,
@@ -67,9 +84,15 @@ public class JsonInvestigationRepository implements InvestigationRepository {
                     questionState.questionId
             );
         }
+    }
+
+    private void restoreEvidenceSuspectLinks(Investigation investigation, InvestigationSaveData data) {
         for (EvidenceSuspectLinkData link : safeList(data.evidenceSuspectLinks)) {
             investigation.linkEvidenceToSuspect(link.evidenceId, link.suspectId);
         }
+    }
+
+    private void restoreEvidenceAnswerLinks(Investigation investigation, InvestigationSaveData data) {
         for (EvidenceAnswerLinkData link : safeList(data.evidenceAnswerLinks)) {
             investigation.linkEvidenceToAnswer(
                     link.evidenceId,
@@ -78,16 +101,17 @@ public class JsonInvestigationRepository implements InvestigationRepository {
                     link.questionId
             );
         }
+    }
 
+    private void restoreClosedState(Investigation investigation, InvestigationSaveData data) throws IOException {
         InvestigationStatus status = parseStatus(data.status);
-        if (status != InvestigationStatus.OPEN) {
-            if (data.accusation == null || data.evaluationResult == null) {
-                throw new IOException("File indagine non valido: accusa o valutazione finale mancante.");
-            }
-            investigation.restoreState(status, toAccusation(data.accusation), toEvaluationResult(data.evaluationResult));
+        if (status == InvestigationStatus.OPEN) {
+            return;
         }
-
-        return new LoadedInvestigation(investigation, data.selectedSuspectId);
+        if (data.accusation == null || data.evaluationResult == null) {
+            throw new IOException("File indagine non valido: accusa o valutazione finale mancante.");
+        }
+        investigation.restoreState(status, toAccusation(data.accusation), toEvaluationResult(data.evaluationResult));
     }
 
     private InvestigationSaveData toSaveData(Investigation investigation, String selectedSuspectId) {

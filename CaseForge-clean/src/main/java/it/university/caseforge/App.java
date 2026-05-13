@@ -29,7 +29,7 @@ public class App extends Application {
         );
 
         view.bindController(controller);
-        controller.loadDemoCase();
+        controller.loadDefaultCase();
 
         Scene scene = new Scene(view.getRoot(), 1280, 820);
         scene.getStylesheets().add(Objects.requireNonNull(

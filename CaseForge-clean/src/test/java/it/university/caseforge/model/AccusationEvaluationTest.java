@@ -16,7 +16,7 @@ class AccusationEvaluationTest {
 
     @Test
     void correctAccusationSolvesAndClosesCase() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
         investigation.discoverEvidence("ev-server-log");
@@ -95,7 +95,7 @@ class AccusationEvaluationTest {
 
     @Test
     void wrongSuspectDoesNotSolveCase() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         investigation.discoverEvidence("ev-server-log");
         investigation.askQuestion(
                 "sus-marta-greco",
@@ -132,7 +132,7 @@ class AccusationEvaluationTest {
 
     @Test
     void undiscoveredEvidenceDoesNotCountForFinalAccusation() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
 
         EvaluationResult result = investigation.formulateAccusation(
                 new Accusation(
@@ -159,7 +159,7 @@ class AccusationEvaluationTest {
 
     @Test
     void correctEvidenceWithoutConfirmedContradictionDoesNotSolveCase() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         investigation.discoverEvidence("ev-server-log");
 
         EvaluationResult result = investigation.formulateAccusation(
@@ -186,7 +186,7 @@ class AccusationEvaluationTest {
 
     @Test
     void wrongTimelineEventKeepsTheAccusationIncomplete() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         investigation.discoverEvidence("ev-server-log");
         investigation.askQuestion(
                 "sus-marta-greco",

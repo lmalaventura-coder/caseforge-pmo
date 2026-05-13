@@ -46,7 +46,7 @@ public class JavaFxCaseView implements CaseView {
     private final BorderPane root = new BorderPane();
     private final Label titleLabel = new Label("CaseForge");
     private final Label descriptionLabel = new Label();
-    private final Label statusLabel = new Label("In attesa del caso demo.");
+    private final Label statusLabel = new Label("In attesa di un caso investigativo.");
     private final Label selectedSuspectLabel = new Label("Sospetto selezionato: nessuno");
     private final Label selectedEvidenceLabel = new Label("Prova selezionata: nessuna");
 
@@ -157,8 +157,8 @@ public class JavaFxCaseView implements CaseView {
         }
 
         if (!caseLoaded) {
-            statusLabel.setText("Caso demo caricato.");
-            appendLog("Caso demo caricato. Inizia selezionando un sospetto, poi esamina prove e cronologia.");
+            statusLabel.setText("Caso investigativo caricato.");
+            appendLog("Caso investigativo caricato. Inizia selezionando un sospetto, poi esamina prove e cronologia.");
             caseLoaded = true;
         }
     }

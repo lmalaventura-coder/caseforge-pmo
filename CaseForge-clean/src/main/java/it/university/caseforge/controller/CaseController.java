@@ -10,13 +10,21 @@ public interface CaseController {
 
     List<CaseSummary> getAvailableCases();
 
-    void loadDemoCase();
+    void loadDefaultCase();
 
     void loadCase(String caseId);
 
-    void resetDemoInvestigation();
-
     void resetCurrentInvestigation();
+
+    @Deprecated
+    default void loadDemoCase() {
+        loadDefaultCase();
+    }
+
+    @Deprecated
+    default void resetDemoInvestigation() {
+        resetCurrentInvestigation();
+    }
 
     void saveInvestigation(Path path, String selectedSuspectId);
 

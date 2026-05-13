@@ -37,7 +37,7 @@ class InvestigationControllerTest {
     void discoverEvidenceRefreshesTheDisplayedCase() {
         RecordingCaseView view = new RecordingCaseView();
         InvestigationController controller = createController(view);
-        controller.loadDemoCase();
+        controller.loadDefaultCase();
 
         controller.discoverEvidence("ev-fingerprint");
 
@@ -50,7 +50,7 @@ class InvestigationControllerTest {
     void loadingSelectedCaseReplacesTheInvestigationWithACleanCase() {
         RecordingCaseView view = new RecordingCaseView();
         InvestigationController controller = createController(view);
-        controller.loadDemoCase();
+        controller.loadDefaultCase();
         controller.discoverEvidence("ev-server-log");
 
         controller.loadCase(DemoCaseFactory.PROTOTYPE_THEFT_CASE_ID);
@@ -85,7 +85,7 @@ class InvestigationControllerTest {
     void structuredAccusationUsesEvidenceContradictionAndTimelineSelectedByTheController() {
         RecordingCaseView view = new RecordingCaseView();
         InvestigationController controller = createController(view);
-        controller.loadDemoCase();
+        controller.loadDefaultCase();
         controller.discoverEvidence("ev-server-log");
         controller.askQuestion(
                 "sus-marta-greco",
@@ -120,7 +120,7 @@ class InvestigationControllerTest {
     void controllerLinksDiscoveredEvidenceToSelectedAnswer() {
         RecordingCaseView view = new RecordingCaseView();
         InvestigationController controller = createController(view);
-        controller.loadDemoCase();
+        controller.loadDefaultCase();
         controller.discoverEvidence("ev-server-log");
         controller.askQuestion(
                 "sus-marta-greco",
@@ -142,10 +142,10 @@ class InvestigationControllerTest {
     }
 
     @Test
-    void resetDemoInvestigationRestoresInitialCaseStateAfterClosure() {
+    void resetCurrentInvestigationRestoresInitialCaseStateAfterClosure() {
         RecordingCaseView view = new RecordingCaseView();
         InvestigationController controller = createController(view);
-        controller.loadDemoCase();
+        controller.loadDefaultCase();
         controller.discoverEvidence("ev-server-log");
         controller.askQuestion(
                 "sus-marta-greco",
@@ -172,7 +172,7 @@ class InvestigationControllerTest {
                 "La ricostruzione e coerente."
         );
 
-        controller.resetDemoInvestigation();
+        controller.resetCurrentInvestigation();
 
         CaseFile resetCase = view.lastCaseFile;
         assertEquals(1, view.resetCalls);
@@ -197,12 +197,12 @@ class InvestigationControllerTest {
     }
 
     @Test
-    void resetDemoInvestigationKeepsObserverNotificationsSingleAfterMultipleRestarts() {
+    void resetCurrentInvestigationKeepsObserverNotificationsSingleAfterMultipleRestarts() {
         RecordingCaseView view = new RecordingCaseView();
         InvestigationController controller = createController(view);
-        controller.loadDemoCase();
-        controller.resetDemoInvestigation();
-        controller.resetDemoInvestigation();
+        controller.loadDefaultCase();
+        controller.resetCurrentInvestigation();
+        controller.resetCurrentInvestigation();
         view.events.clear();
 
         controller.discoverEvidence("ev-fingerprint");
@@ -218,7 +218,7 @@ class InvestigationControllerTest {
     void askingQuestionRefreshesTheDisplayedCaseAndRecordsTheAnswer() {
         RecordingCaseView view = new RecordingCaseView();
         InvestigationController controller = createController(view);
-        controller.loadDemoCase();
+        controller.loadDefaultCase();
 
         controller.askQuestion(
                 "sus-sofia-rinaldi",

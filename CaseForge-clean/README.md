@@ -27,14 +27,14 @@ src/test/java/it/university/caseforge/model/
 
 ## Funzionalita attuali
 
-- Creazione caso demo.
-- Caso demo narrativo ambientato nella startup tecnologica HelixNova, con piu sospetti, prove incrociate e cronologia investigativa estesa.
+- Creazione di casi investigativi demo.
+- Caso principale narrativo ambientato nella startup tecnologica HelixNova, con piu sospetti, prove incrociate e cronologia investigativa estesa.
 - Aggiunta sospetti, prove e cronologia.
 - Scoperta di una prova.
 - Collegamento prova-sospetto.
 - Accusa finale strutturata con sospetto, prova principale, contraddizione confermata ed evento della cronologia rilevante.
 - Valutazione finale tramite strategy che pesa tutti gli elementi dell'accusa, non solo il sospetto scelto.
-- Pulsante `Nuova indagine` per ricreare il caso demo e ripartire senza riavviare l'applicazione.
+- Pulsante `Nuova indagine` per ricreare il caso selezionato e ripartire senza riavviare l'applicazione.
 - Notifica eventi per prova scoperta, collegamento e chiusura caso.
 - Scheletri MVC per controller e view JavaFX.
 - Sistema di interrogatori con domande categorizzate, risposte affidabili e contraddizioni rilevate quando una prova scoperta smentisce una risposta.

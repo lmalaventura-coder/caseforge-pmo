@@ -15,7 +15,7 @@ class EvidenceLinkingTest {
 
     @Test
     void evidenceCanBeLinkedToASuspect() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
 
         investigation.linkEvidenceToSuspect("ev-call-record", "sus-luca-conti");
 
@@ -25,7 +25,7 @@ class EvidenceLinkingTest {
 
     @Test
     void linkingSameEvidenceTwiceNotifiesOnlyOnce() {
-        Investigation investigation = new Investigation(new DemoCaseFactory().createDemoCase());
+        Investigation investigation = new Investigation(new DemoCaseFactory().createDefaultCase());
         List<InvestigationEvent> events = new ArrayList<>();
         investigation.addObserver(events::add);
 

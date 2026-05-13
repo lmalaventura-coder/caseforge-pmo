@@ -11,5 +11,10 @@ public interface CaseFactory {
 
     CaseFile createCase(String caseId);
 
-    CaseFile createDemoCase();
+    CaseFile createDefaultCase();
+
+    @Deprecated
+    default CaseFile createDemoCase() {
+        return createDefaultCase();
+    }
 }
